@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  database:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: "ZNOdata"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "ZNOdata", "-p", "5432", "-U", "postgres" ]
+      interval: 4s
+      timeout: 4s
+      retries: 5
+#    command: python database.py
+#    volumes:
+#      - db:/var/lib/postgresql/data
+  api:
+    restart: always
+    build: .
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PYTHONUNBUFFERED: 1
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: "ZNOdata"
+      POSTGRES_HOST: "database"
+#volumes:
+#  database:
+#    driver: local
