@@ -48,4 +48,4 @@ if __name__ == '__main__':
     logging.info('Python started!!!!')
     downloadFiles()
     writeDataToDb()
-    compareQueryToCsv()
+    # compareQueryToCsv()
