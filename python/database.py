@@ -6,19 +6,21 @@ import chardet
 import pandas
 import psycopg2
 
-host = "database"
-host = "localhost"
-databaseName = "ZNOdata"
-username = "postgres"
-password = "0000"
+# host = "database"
+# host = "localhost"
+# databaseName = "ZNOdata"
+# username = "postgres"
+# password = "1234"
 
-# username=os.environ["POSTGRES_USER"]
-# password=os.environ["POSTGRES_PASSWORD"]
-# databaseName=os.environ["POSTGRES_DB"]
-# host=os.environ["POSTGRES_HOST"]
+username=os.environ["POSTGRES_USER"]
+password=os.environ["POSTGRES_PASSWORD"]
+databaseName=os.environ["POSTGRES_DB"]
+host=os.environ["POSTGRES_HOST"]
 N = 1000
 
 subjectsList = ['uml', 'ukr', 'hist', 'math', 'mathst', 'phys', 'chem', 'bio', 'geo', 'eng', 'fra', 'deu', 'spa']
+sub1 = ['hist', 'phys', 'chem', 'bio', 'geo']
+subLang = ['eng', 'fra', 'deu', 'spa']
 regionsSybCol = ['ptname', 'ptregname', 'ptareaname', 'pttername']
 def getConnection():
     connection = psycopg2.connect(
@@ -59,188 +61,351 @@ def getType(colName, cTypes):
         return 'REAL'
     return 'CHAR(300)'
 
-def getInsertQuery(tableName, colNames):
-    if(tableName == 'math_test' and colNames[-1].startswith('mathst')):
-        colNames = [x for x in colNames if not x.startswith('mathst')]
-    insertQuery = f"INSERT INTO {tableName} (eo_id, student_id,  {', '.join(colNames)}) VALUES ({'%s,' * (len(colNames) + 2)})"[:-2] + ")"
-    return insertQuery
-
-def insertIntoTable(data, insertQuery):
-    startTime = time.time()
-
+def insertReg(regname, conn):
+    query = f"INSERT INTO regs(regname) VALUES ('{regname}');"
     try:
-        conn = getConnection()
-        conn.set_client_encoding('UTF8')
-        cursor = conn.cursor()
-
-        for n in range(0, len(data), 1):
-            cursor.execute(insertQuery, (data.iloc[[n]].values[0]))
-        conn.commit()
-        print(f'Committed {len(data)}. Time: {(time.time() - startTime):.2f} seconds')
-    except psycopg2.OperationalError as err:
-        raise err
-    except (Exception, psycopg2.DatabaseError) as error:
-        print('error in insertIntoTable')
-        logging.error('Database error: ' + str(error))
-    finally:
-        conn.close()
-
-def getRegionId(regname, areaname, tername):
-    query = f"SELECT id FROM regions WHERE regname='{regname}' AND areaname='{areaname}' AND tername='{tername}';"
-    try:
-        conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-        regId = cursor.fetchall()[0][0]
-        return regId
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        return -1
-    finally:
-        conn.close()
+        logging.error('insertReg: ' + str(error))
+        raise error
 
-def insertRegion(regname, areaname, tername, tertypename):
-    query = f"INSERT INTO regions(regname, areaname, tername, tertypename) VALUES ('{regname}', '{areaname}', '{tername}', '{tertypename}');"
-    print(query)
+def insertArea(areaname, conn):
+    query = f"INSERT INTO areas(areaname) VALUES ('{areaname}');"
     try:
-        conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        logging.error('insertRegion: ' + str(error))
-    finally:
-        conn.close()
+        logging.error('insertArea: ' + str(error))
+        raise error
 
-def getRegionEoId(eoregname, eoareaname, eotername):
-    query = f"SELECT id FROM regions_eo WHERE eoregname='{eoregname}' AND eoareaname='{eoareaname}' AND eotername='{eotername}';"
+def insertTer(tername, tertypename, conn):
+    query = f"INSERT INTO ters(tername, tertypename) VALUES ('{tername}', '{tertypename}');"
+    if tertypename is None: query = f"INSERT INTO ters(tername, tertypename) VALUES ('{tername}', null);"
     try:
-        conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-        regId = cursor.fetchall()[0][0]
-        return regId
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        return -1
-    finally:
-        conn.close()
+        logging.error('insertTer: ' + str(error))
+        raise error
 
-def insertRegioneo(eoregname, eoareaname, eotername):
-    query = f"INSERT INTO regions_eo(eoregname, eoareaname, eotername) VALUES ('{eoregname}', '{eoareaname}', '{eotername}');"
+def insertEo(conn, eoname, eotypename, eoparent, regname, areaname, tername):
+    if isinstance(eoname, float):
+        return
+    query = f"INSERT INTO eo (eoname, eotypename, eoparent, regname, areaname, tername) VALUES ('{eoname}', '{eotypename}', '{eoparent}', '{regname}', '{areaname}', '{tername}');"
     try:
-        conn = getConnection()
-        conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-    except (Exception, psycopg2.DatabaseError) as error:
-        logging.error('insertRegionEo: ' + str(error))
-    finally:
-        conn.close()
-
-def getEoId(eoname, eotypename, eoparent, regeo_id):
-    query = f"SELECT id FROM educationalorganizations WHERE eoname='{eoname}' AND eotypename='{eotypename}' AND eoparent='{eoparent}' AND regeo_id='{regeo_id}';"
-    try:
-        conn = getConnection()
-        conn.set_client_encoding('UTF8')
-        cursor = conn.cursor()
-        cursor.execute(query)
-        regId = cursor.fetchall()[0][0]
-        return regId
-    except (Exception, psycopg2.DatabaseError) as error:
-        return -1
-    finally:
-        conn.close()
-
-def insertEo(eoname, eotypename, eoparent, regeo_id):
-    query = f"INSERT INTO educationalorganizations(eoname, eotypename, eoparent, regeo_id) VALUES ('{eoname}', '{eotypename}', '{eoparent}', '{regeo_id}');"
-    try:
-        conn = getConnection()
-        conn.set_client_encoding('UTF8')
-        cursor = conn.cursor()
-        cursor.execute(query)
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
         logging.error('insertEo: ' + str(error))
-    finally:
-        conn.close()
+        raise error
 
-def insertRegFromData(data):
-    query = f"SELECT id, TRIM(regname), TRIM(areaname), TRIM(tername), TRIM(tertypename)  FROM regions;"
+def insertPt(conn, ptname, ptregname, ptareaname, pttername):
+    query = f"INSERT INTO pt (name, regname, areaname, tername) VALUES ('{ptname}', '{ptregname}', '{ptareaname}', '{pttername}');"
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertPt: ' + str(error))
+        raise error
+def getEoId(eoname, eotypename, eoparent, regname):
+    query = f"SELECT id FROM educationalorganizations WHERE eoname='{eoname}' AND eotypename='{eotypename}' AND eoparent='{eoparent}' AND regname='{regname}';"
     try:
         conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-        regInDbWithId = cursor.fetchall()
-        regInDbNoId = [list(x[1:]) for x in regInDbWithId]
-        df2 = data[["regname", "areaname", "tername", "tertypename"]]
-        for d in df2.values:
-            if not list(d) in regInDbNoId:
-                insertRegion(d[0], d[1], d[2], d[3])
-                regInDbNoId.append(list(d))
-        conn.commit()
+        regId = cursor.fetchall()[0][0]
+        return regId
+    except (Exception, psycopg2.DatabaseError) as error:
+        return -1
+
+def insertStudent(conn, outid, birth, year, sextypename, classprofilename, classlangname, regtypename, eo_id,
+                  regname, areaname, tername):
+    if eo_id == -1: eo_id = 'null'
+    query = f'''INSERT INTO students(
+    	id, birth, year, sextypename, classprofilename, classlangname, regtypename, eo_id, regname, areaname, tername)
+    	VALUES ('{outid}', {birth}, {year}, '{sextypename}', '{classprofilename}', '{classlangname}', '{regtypename}', {eo_id},
+                  '{regname}', '{areaname}', '{tername}')'''
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
         logging.error('insertRegFromData: ' + str(error))
-    finally:
-        conn.close()
+        raise error
 
-def insertRegeoFromData(data):
-    query = f"SELECT id, TRIM(eoregname), TRIM(eoareaname), TRIM(eotername) FROM regions_eo;"
+def insertRegFromData(data, conn):
+    query = f"SELECT TRIM(regname) FROM regs;"
     try:
-        conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-        regeoInDbWithId = cursor.fetchall()
-        regeoInDbNoId = [list(x[1:]) for x in regeoInDbWithId]
-        df2 = data[["eoregname", "eoareaname", "eotername"]]
-        for d in df2.values:
-            if not list(d) in regeoInDbNoId:
-                insertRegioneo(d[0], d[1], d[2])
-                regeoInDbNoId.append(list(d))
-        conn.commit()
+        regInDb = cursor.fetchall()
+        regInDb = [list(r)[0] for r in regInDb]
+        df2 = [col for col in data.columns if 'regname' in col]
+        stacked = data[df2].stack().reset_index(drop=True).drop_duplicates()
+        for r in stacked.values:
+            if not r in regInDb:
+                insertReg(r, conn)
+                regInDb.append(r)
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        logging.error('insertRegeoFromData: ' + str(error))
-    finally:
-        conn.close()
+        logging.error('insertRegFromData: ' + str(error))
+        raise error
 
-def insertEoFromData(data):
-    query = f"SELECT id, TRIM(eoname), TRIM(eotypename), TRIM(eoparent) FROM educationalorganizations;"
+def insertAreaFromData(data, conn):
+    query = f"SELECT TRIM(areaname) FROM areas;"
     try:
-        conn = getConnection()
         conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(query)
-        eoInDbWithId = cursor.fetchall()
-        eoInDbNoId = [list(x[1:]) for x in eoInDbWithId]
-        df2 = data[["eoname", "eotypename", "eoparent", "eoregname", "eoareaname", "eotername"]]
-        for d in df2.values:
-            print(d)
-            if not list(d)[:-3] in eoInDbNoId:
-                regeoId = getRegionEoId(d[3], d[4], d[5])
-                insertRegioneo(d[0], d[1], d[2], regeoId)
-                eoInDbNoId.append(list(d))
-        conn.commit()
+        arInDb = cursor.fetchall()
+        arInDb = [list(r)[0] for r in arInDb]
+        df2 = [col for col in data.columns if 'areaname' in col]
+        stacked = data[df2].stack().reset_index(drop=True).drop_duplicates()
+        for r in stacked.values:
+            if not r in arInDb:
+                insertArea(r, conn)
+                arInDb.append(r)
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        logging.error('insertEoFromData: ' + str(error))
-    finally:
-        conn.close()
+        logging.error('insertAreaFromData: ' + str(error))
+        raise error
 
-def insertStudentsFromData(data):
+def insertTerFromData(data, conn):
+    query = f"SELECT TRIM(tername) FROM ters;"
     try:
-        df2 = data[["outid", "eotypename", "eoparent", "eoregname", "eoareaname", "eotername"]]
+        conn.set_client_encoding('UTF8')
+        cursor = conn.cursor()
+        cursor.execute(query)
+        locInDb = cursor.fetchall()
+        locInDb = [list(r)[0] for r in locInDb]
+        df2 = data[['tername', 'tertypename']].drop_duplicates('tername')
+        for r in df2[['tername']].values:
+            if not r in locInDb:
+                tt = df2.loc[data['tername'] == r[0]][['tertypename']].iloc[0]['tertypename']
+                insertTer(r[0], tt, conn)
+                locInDb.append(r)
+
+        df2 = [col for col in data.columns if 'tername' in col]
+        stacked = data[df2].stack().reset_index(drop=True).drop_duplicates()
+        for r in stacked.values:
+            if not r in locInDb:
+                insertTer(r, None, conn)
+                locInDb.append(r)
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertTerFromData: ' + str(error))
+        raise error
+
+def insertEoFromData(data, conn):
+    query = f"SELECT TRIM(eoname), TRIM(eotypename), TRIM(eoparent), TRIM(regname) FROM eo;"
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        eoInDb = cursor.fetchall()
+        eoInDb = [list(r) for r in eoInDb]
+        df2 = data[["eoname", "eotypename", "eoparent", "eoregname", "eoareaname", "eotername"]].drop_duplicates(['eoname', 'eotypename'])
         for d in df2.values:
-            print(d)
-            if not list(d)[:-3] in eoInDbNoId:
-                regeoId = getRegionEoId(d[3], d[4], d[5])
-                insertRegioneo(d[0], d[1], d[2], regeoId)
-                eoInDbNoId.append(list(d))
-        conn.commit()
+            if not list(d)[:-2] in eoInDb:
+                insertEo(conn, d[0], d[1], d[2], d[3], d[4], d[5])
+                eoInDb.append(list(d)[:-4])
+    except psycopg2.OperationalError as error:
+        raise error
     except (Exception, psycopg2.DatabaseError) as error:
         logging.error('insertEoFromData: ' + str(error))
-    finally:
-        conn.close()
+        raise error
 
+def insertPtFromData(data, conn):
+    query = f"SELECT TRIM(name) FROM pt;"
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        ptInDb = cursor.fetchall()
+        ptInDb = [r[0] for r in ptInDb]
+        for s in subjectsList:
+            colname = s + 'ptname'
+            if colname in data.columns:
+                df2 = data[
+                    [colname, s+'ptregname', s+"ptareaname", s+"pttername"]].drop_duplicates(subset=[colname])
+                for d in df2.values:
+                    if isinstance(d[0], float):
+                        continue
+                    d = [r.rstrip() for r in d]
+                    if not d[0] in ptInDb:
+                        insertPt(conn, d[0], d[1], d[2], d[3])
+                        ptInDb.append(d[0])
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertPtFromData: ' + str(error))
+        raise error
+
+def insertStudentsFromData(data, conn, year):
+    query = f"SELECT id, TRIM(eoname), TRIM(eotypename), TRIM(regname) FROM eo;"
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        eoInDb = cursor.fetchall()
+        eoInDb = [list(e) for e in eoInDb]
+        eoId = {}
+        for e in eoInDb:
+            eoId[e[0]] = e[1:]
+        df2 = data[["outid", 'birth', 'sextypename', 'regname', 'areaname', 'tername', 'regtypename', 'classprofilename', 'classlangname', 'eoname', 'eotypename', 'eoregname']]
+        id_list = list(eoId.keys())
+        val_list = list(eoId.values())
+        for d in df2.values:
+            # ti = time.time()
+            # eo_id = getEoId(d[9], d[10], d[11], d[12])
+            if isinstance(d[-3], float): eo_id = 'null'
+            else:
+                eo_id = id_list[val_list.index(list(d)[-3:])]
+
+            insertStudent(conn, d[0], d[1], year, d[2], d[7],
+                          d[8], d[6], eo_id, d[3], d[4], d[5])
+            # print(time.time() - ti)
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertEoFromData: ' + str(error))
+        raise error
+
+def insertUmlFromData(data, conn):
+    query = '''INSERT INTO uml_test(
+	student_id, test, teststatus, ball100, ball12, ball, adaptscale, ptname)
+	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        df2 = data[['outid', 'umltest', 'umlteststatus', 'umlball100', 'umlball12', 'umlball', 'umladaptscale', 'umlptname']]
+        for d in df2.values:
+            if(isinstance(d[1], float)): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertUmlFromData: ' + str(error))
+        raise error
+
+def insertUkrFromData(data, conn):
+    query = '''INSERT INTO ukr_test(
+            	student_id, test, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            	VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        collist = ['outid', 'ukrtest', 'ukrsubtest', 'ukrteststatus', 'ukrball100',
+                    'ukrball12', 'ukrball', 'ukradaptscale', 'ukrptname']
+        colInDf = []
+        for c in collist:
+            if c in data.columns:
+                colInDf.append(c)
+            else:
+                query = query.replace(c.replace('ukr', '') + ',', '')
+                query = query.replace('%s,', '', 1)
+        df2 = data[colInDf]
+        for d in df2.values:
+            if(isinstance(d[1], float)): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertUkrFromData: ' + str(error))
+        raise error
+
+def insertMathFromData(data, conn):
+    query = '''INSERT INTO math_test(
+	student_id, test, lang, teststatus, ball100, ball12, ball, dpalevel, ptname)
+	VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        collist = ['outid', 'mathtest', 'mathlang', 'mathteststatus', 'mathball100',
+                    'mathball12', 'mathball', 'mathdpalevel', 'mathptname']
+        colInDf = []
+        for c in collist:
+            if c in data.columns:
+                colInDf.append(c)
+            else:
+                query = query.replace(c.replace('math', '') + ',', '')
+                query = query.replace('%s,', '', 1)
+        df2 = data[colInDf]
+        for d in df2.values:
+            if(isinstance(d[1], float)): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertMathFromData: ' + str(error))
+        raise error
+
+def insertMathstFromData(data, conn):
+    query = '''INSERT INTO mathst_test(
+	student_id, test, lang, teststatus, ball12, ball, ptname)
+	VALUES (%s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        df2 = data[['outid', 'mathsttest', 'mathstlang', 'mathstteststatus',
+                    'mathstball12', 'mathstball', 'mathstptname']]
+        for d in df2.values:
+            if(isinstance(d[1], float)): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertMathstFromData: ' + str(error))
+        raise error
+
+def insertSubFromData(data, sub, conn):
+    if not sub + 'test' in data.columns: return
+    query = f'''INSERT INTO {sub}_test(
+	student_id, test, lang, teststatus, ball100, ball12, ball, ptname)
+	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        df2 = data[['outid', sub+'test', sub+'lang', sub+'teststatus', sub+'ball100',
+                    sub+'ball12', sub+'ball', sub+'ptname']]
+        for d in df2.values:
+            if(isinstance(d[1], float)): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertMathFromData: ' + str(error))
+        raise error
+
+def insertSubLFromData(data, sub, conn):
+    if not sub + 'test' in data.columns: return
+    query = f'''INSERT INTO {sub}_test(
+	student_id, test, teststatus, ball100, ball12, ball, dpalevel, ptname)
+	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    try:
+        df2 = data[['outid', sub+'test', sub+'teststatus', sub+'ball100',
+                    sub+'ball12', sub+'ball', sub+'dpalevel', sub+'ptname']]
+        for d in df2.values:
+            if isinstance(d[1], float): continue
+            curs = conn.cursor()
+            curs.execute(query, list(d))
+    except psycopg2.OperationalError as error:
+        raise error
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error('insertSubLFromData: ' + str(error))
+        raise error
 
 def insertDataIntoDB(filename, year):
     getTableSizeQuery = f'''SELECT COUNT(*) FROM students WHERE year = {year};'''
@@ -249,15 +414,7 @@ def insertDataIntoDB(filename, year):
         result = chardet.detect(rawdata.read(10000))
     enc = result.get('encoding')
     dataN = readAllData(filename, enc)
-    insertRegFromData(dataN)
-
-    subInsQueries = {}
-    for sub in subjectsList:
-        # subLst = [col for col in dataN.columns if col.startswith(sub)]
-        subLst  = ['outid']
-        subLst += [col for col in dataN.columns if (col.startswith(sub) and (col.replace(sub, '') not in regionsSybCol))]
-        subInsQueries[sub] = getInsertQuery(sub + '_test', subLst)
-
+    i = 0
     try:
         conn = getConnection()
         conn.set_client_encoding('UTF8')
@@ -271,61 +428,88 @@ def insertDataIntoDB(filename, year):
         if conn is not None:
             conn.close()
 
-    stime = time.time()
-    insertRegFromData(dataN)
-    insertRegeoFromData(dataN)
-    insertEoFromData(dataN)
 
     while True:
         try:
+            conn = getConnection()
             data = readData(dataN, i * N)
-            insertIntoTable(data, subInsQueries)
+            totaltime = time.time()
+            stime = time.time()
+            insertRegFromData(data, conn)
+            print('Insert reg: ',time.time()-stime)
+            stime = time.time()
+            insertAreaFromData(data, conn)
+            print('Insert area: ',time.time() - stime)
+            stime = time.time()
+            insertTerFromData(data, conn)
+            print('Insert ter: ',time.time() - stime)
+            stime = time.time()
+            insertEoFromData(data, conn)
+            print('Insert eo: ', time.time() - stime)
+            stime = time.time()
+            insertPtFromData(data, conn)
+            print('Insert pt: ',time.time() - stime)
+            stime = time.time()
+            insertStudentsFromData(data, conn, year)
+            print('Insert students: ',time.time() - stime)
+            stime = time.time()
+            if 'umltest' in dataN.columns:
+                insertUmlFromData(data, conn)
+                print('Insert uml: ',time.time() - stime)
+                stime = time.time()
+            insertUkrFromData(data, conn)
+            print('Insert ukr: ',time.time() - stime)
+            stime = time.time()
+            if 'mathtest' in dataN.columns:
+                insertMathFromData(data, conn)
+                print('Insert math: ', time.time() - stime)
+                stime = time.time()
+            if 'mathsttest' in dataN.columns:
+                insertMathstFromData(data, conn)
+                print('Insert mathst: ', time.time() - stime)
+                stime = time.time()
+
+            for sub in sub1:
+                if sub+'test' in dataN.columns:
+                    insertSubFromData(data, sub, conn)
+            for sub in subLang:
+                if sub+'test' in dataN.columns:
+                    insertSubLFromData(data, sub, conn)
+            print('Insert other: ',time.time() - stime)
+            print(f"Insert {i*N}. Total time: {(time.time()-totaltime):.2f}" )
+            print('_____________________')
+            conn.commit()
 
             if len(data.values) < N:
                 print(f'All data committed to the database!')
-                f = open("timefile.txt", "a")
-                f.write(f'{filename} {(time.time() - stime):.2f} s')
-                f.close()
                 break
             i += 1
         except psycopg2.OperationalError as error:
             logging.error('Connection to DB lost. Try connect in 5 s')
             time.sleep(5)
+        except (Exception, psycopg2.DatabaseError) as error:
+            i += 1
+            conn.rollback()
 
 
 def compareQueryToCsv():
-    # compareQuery = f'''SELECT t1.year, TRIM(t1.regname) as regname, ROUND(CAST(t1.avgball AS numeric), 2) as physavgball, t3.year, ROUND(CAST(t3.avgball AS numeric), 2) as physavgball  FROM
-	# (SELECT year, regname, AVG(physball100) as avgball
-	#  FROM {tableName}
-	#  WHERE physball100 != 'NaN' AND physteststatus = 'Зараховано' AND year = 2019
-	#  GROUP BY year, regname) AS t1
-    # INNER JOIN
-	# (SELECT t2.year as year, TRIM(t2.regname) as regname, t2.avgball as avgball
- 	#  FROM
-	#  	(SELECT year, regname, AVG(physball100) AS avgball
-	#  	 FROM {tableName}
-	# 	 WHERE physball100 != 'NaN' AND physteststatus = 'Зараховано' AND year = 2021
-	# 	 GROUP BY year, regname) AS t2) AS t3
-    # ON t1.regname = t3.regname
-    # ORDER BY t1.regname
-    # '''
+    compareQuery = f'''SELECT year, TRIM(regname), ROUND(CAST(AVG(phys_test.ball100) AS numeric), 2) FROM students
+        LEFT JOIN phys_test ON phys_test.student_id=students.id
+        WHERE phys_test.teststatus='Зараховано'
+        GROUP BY year, regname
+        ORDER BY regname'''
 
-    # try:
-    #     conn = getConnection()
-    #     cursor = conn.cursor()
-    #
-    #     outputquery = "COPY ({0}) TO STDOUT WITH CSV HEADER".format(compareQuery)
-    #     with open('result.csv', 'w') as f:
-    #         cursor.copy_expert(outputquery, f)
-    #     logging.info('Data wrote to csv!')
-    #
-    # except (Exception, psycopg2.DatabaseError) as error:
-    #     logging.error(str(error))
-    # finally:
-    #     if conn is not None:
-    #         conn.close()
-    return
+    try:
+        conn = getConnection()
+        cursor = conn.cursor()
 
-# print(getRegionId('Днропетровська область', 'м.Кам’янське', 'Дніпровський район міста'))
-# da = readAllData('resources/Odata2021File.csv', 'cp1251')
-# insertRegFromData(da)
+        outputquery = "COPY ({0}) TO STDOUT WITH CSV HEADER".format(compareQuery)
+        with open('result.csv', 'w') as f:
+            cursor.copy_expert(outputquery, f)
+        logging.info('Data wrote to csv!')
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error(str(error))
+    finally:
+        if conn is not None:
+            conn.close()

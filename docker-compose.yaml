@@ -1,5 +1,12 @@
 version: '3.8'
 services:
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:postgresql://database:5432/ZNOdata -user=postgres -password=1234 -connectRetries=30 migrate
+    volumes:
+      - .:/flyway/sql
+    depends_on:
+      - database
   database:
     image: postgres
     restart: always
@@ -7,16 +14,13 @@ services:
       - 5432:5432
     environment:
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "0000"
+      POSTGRES_PASSWORD: "1234"
       POSTGRES_DB: "ZNOdata"
     healthcheck:
       test: [ "CMD", "pg_isready", "-d", "ZNOdata", "-p", "5432", "-U", "postgres" ]
       interval: 4s
       timeout: 4s
       retries: 5
-#    command: python database.py
-#    volumes:
-#      - db:/var/lib/postgresql/data
   api:
     restart: always
     build: .
@@ -26,9 +30,6 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "0000"
+      POSTGRES_PASSWORD: "1234"
       POSTGRES_DB: "ZNOdata"
       POSTGRES_HOST: "database"
-#volumes:
-#  database:
-#    driver: local
