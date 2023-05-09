@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS regs, areas, ters, pt, eo, students, uml_test, hist_test,
- ukr_test, math_test, mathst_test, spa_test, fra_test, deu_test, geo_test, bio_test, eng_test, chem_test, phys_test CASCADE;
+--DROP TABLE IF EXISTS regs, areas, ters, pt, eo, students, uml_test, hist_test,
+-- ukr_test, math_test, mathst_test, spa_test, fra_test, deu_test, geo_test, bio_test, eng_test, chem_test, phys_test CASCADE;
 
 CREATE TABLE regs(
         regname CHAR(250) PRIMARY KEY

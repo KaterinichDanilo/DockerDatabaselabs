@@ -261,11 +261,15 @@ def insertPtFromData(data, conn):
 
 def insertStudentsFromData(data, conn, year):
     query = f"SELECT id, TRIM(eoname), TRIM(eotypename), TRIM(regname) FROM eo;"
+    queryS = f"SELECT TRIM(id) FROM students;"
     try:
         cursor = conn.cursor()
         cursor.execute(query)
         eoInDb = cursor.fetchall()
         eoInDb = [list(e) for e in eoInDb]
+        cursor.execute(queryS)
+        stInDb = cursor.fetchall()
+        stInDb = [list(e)[00] for e in stInDb]
         eoId = {}
         for e in eoInDb:
             eoId[e[0]] = e[1:]
@@ -275,6 +279,7 @@ def insertStudentsFromData(data, conn, year):
         for d in df2.values:
             # ti = time.time()
             # eo_id = getEoId(d[9], d[10], d[11], d[12])
+            if d[0] in stInDb: continue
             if isinstance(d[-3], float): eo_id = 'null'
             else:
                 eo_id = id_list[val_list.index(list(d)[-3:])]
@@ -292,23 +297,33 @@ def insertUmlFromData(data, conn):
     query = '''INSERT INTO uml_test(
 	student_id, test, teststatus, ball100, ball12, ball, adaptscale, ptname)
 	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM uml_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
         df2 = data[['outid', 'umltest', 'umlteststatus', 'umlball100', 'umlball12', 'umlball', 'umladaptscale', 'umlptname']]
         for d in df2.values:
-            if(isinstance(d[1], float)): continue
+            if(isinstance(d[1], float) or d[0] in stInDb): continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
         raise error
     except (Exception, psycopg2.DatabaseError) as error:
-        logging.error('insertUmlFromData: ' + str(error))
-        raise error
+        return
 
 def insertUkrFromData(data, conn):
     query = '''INSERT INTO ukr_test(
             	student_id, test, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
             	VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM ukr_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
+
         collist = ['outid', 'ukrtest', 'ukrsubtest', 'ukrteststatus', 'ukrball100',
                     'ukrball12', 'ukrball', 'ukradaptscale', 'ukrptname']
         colInDf = []
@@ -320,7 +335,7 @@ def insertUkrFromData(data, conn):
                 query = query.replace('%s,', '', 1)
         df2 = data[colInDf]
         for d in df2.values:
-            if(isinstance(d[1], float)): continue
+            if(isinstance(d[1], float) or d[0] in stInDb): continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
@@ -333,7 +348,12 @@ def insertMathFromData(data, conn):
     query = '''INSERT INTO math_test(
 	student_id, test, lang, teststatus, ball100, ball12, ball, dpalevel, ptname)
 	VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM math_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
         collist = ['outid', 'mathtest', 'mathlang', 'mathteststatus', 'mathball100',
                     'mathball12', 'mathball', 'mathdpalevel', 'mathptname']
         colInDf = []
@@ -345,7 +365,7 @@ def insertMathFromData(data, conn):
                 query = query.replace('%s,', '', 1)
         df2 = data[colInDf]
         for d in df2.values:
-            if(isinstance(d[1], float)): continue
+            if(isinstance(d[1], float) or d[0] in stInDb): continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
@@ -358,11 +378,16 @@ def insertMathstFromData(data, conn):
     query = '''INSERT INTO mathst_test(
 	student_id, test, lang, teststatus, ball12, ball, ptname)
 	VALUES (%s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM mathst_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
         df2 = data[['outid', 'mathsttest', 'mathstlang', 'mathstteststatus',
                     'mathstball12', 'mathstball', 'mathstptname']]
         for d in df2.values:
-            if(isinstance(d[1], float)): continue
+            if(isinstance(d[1], float) or d[0] in stInDb): continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
@@ -376,11 +401,16 @@ def insertSubFromData(data, sub, conn):
     query = f'''INSERT INTO {sub}_test(
 	student_id, test, lang, teststatus, ball100, ball12, ball, ptname)
 	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM {sub}_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
         df2 = data[['outid', sub+'test', sub+'lang', sub+'teststatus', sub+'ball100',
                     sub+'ball12', sub+'ball', sub+'ptname']]
         for d in df2.values:
-            if(isinstance(d[1], float)): continue
+            if(isinstance(d[1], float) or d[0] in stInDb): continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
@@ -394,11 +424,16 @@ def insertSubLFromData(data, sub, conn):
     query = f'''INSERT INTO {sub}_test(
 	student_id, test, teststatus, ball100, ball12, ball, dpalevel, ptname)
 	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+    queryS = f"SELECT TRIM(student_id) FROM {sub}_test;"
     try:
+        curs = conn.cursor()
+        curs.execute(queryS)
+        stInDb = curs.fetchall()
+        stInDb = [list(e)[0] for e in stInDb]
         df2 = data[['outid', sub+'test', sub+'teststatus', sub+'ball100',
                     sub+'ball12', sub+'ball', sub+'dpalevel', sub+'ptname']]
         for d in df2.values:
-            if isinstance(d[1], float): continue
+            if isinstance(d[1], float) or d[0] in stInDb: continue
             curs = conn.cursor()
             curs.execute(query, list(d))
     except psycopg2.OperationalError as error:
@@ -417,7 +452,6 @@ def insertDataIntoDB(filename, year):
     i = 0
     try:
         conn = getConnection()
-        conn.set_client_encoding('UTF8')
         cursor = conn.cursor()
         cursor.execute(getTableSizeQuery)
         tableSize = cursor.fetchall()[0][0]

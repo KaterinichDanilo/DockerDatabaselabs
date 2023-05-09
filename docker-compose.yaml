@@ -2,11 +2,16 @@ version: '3.8'
 services:
   flyway:
     image: flyway/flyway
-    command: -url=jdbc:postgresql://database:5432/ZNOdata -user=postgres -password=1234 -connectRetries=30 migrate
+    command: -url=jdbc:postgresql://database:5432/ZNOdata -user=postgres -password=1234 -connectRetries=60 migrate
+#    command: [ "sh", "-c", "sleep infinity" ]
     volumes:
-      - .:/flyway/sql
+      - ./sql:/flyway/sql
     depends_on:
       - database
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://database:5432/ZNOdata
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=1234
   database:
     image: postgres
     restart: always
