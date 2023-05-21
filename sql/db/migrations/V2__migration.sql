@@ -240,7 +240,6 @@ CREATE TABLE fra_test(
         id bigserial PRIMARY KEY,
         student_id CHAR(50),
         test CHAR(50),
-        lang CHAR(20),
         teststatus CHAR(50),
         ball100 REAL,
         ball12 REAL,

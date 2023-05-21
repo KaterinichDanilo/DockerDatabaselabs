@@ -9,6 +9,7 @@ import yaml
 from py7zr import unpack_7zarchive
 
 from database import insertDataIntoDB, compareQueryToCsv
+import app
 
 url = 'https://zno.testportal.com.ua/yearstat/uploads/'
 filename = 'OpenDataZNO____.7z'
@@ -48,4 +49,4 @@ if __name__ == '__main__':
     logging.info('Python started!!!!')
     downloadFiles()
     writeDataToDb()
-    compareQueryToCsv()
+    app.run()

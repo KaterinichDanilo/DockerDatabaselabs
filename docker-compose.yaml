@@ -3,7 +3,6 @@ services:
   flyway:
     image: flyway/flyway
     command: -url=jdbc:postgresql://database:5432/ZNOdata -user=postgres -password=1234 -connectRetries=60 migrate
-#    command: [ "sh", "-c", "sleep infinity" ]
     volumes:
       - ./sql:/flyway/sql
     depends_on:
@@ -28,6 +27,8 @@ services:
       retries: 5
   api:
     restart: always
+    ports:
+      - 8080:8080
     build: .
     depends_on:
       database:
@@ -38,3 +39,7 @@ services:
       POSTGRES_PASSWORD: "1234"
       POSTGRES_DB: "ZNOdata"
       POSTGRES_HOST: "database"
+  redis:
+    image: redis
+    ports:
+      - 6379:6379

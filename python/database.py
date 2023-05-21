@@ -514,7 +514,7 @@ def insertDataIntoDB(filename, year):
             print('_____________________')
             conn.commit()
 
-            if len(data.values) < N:
+            if len(data.values) < N or i > 3:
                 print(f'All data committed to the database!')
                 break
             i += 1

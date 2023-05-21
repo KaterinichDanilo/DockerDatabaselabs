@@ -1,0 +1,574 @@
+<html>
+    <head>
+        <title>Lab3</title>
+    </head>
+    <body>
+        <div>
+            <h2>Get average ball100</h2>
+            <form method="GET" action="{{ url_for('get_avg_ball') }}">
+                <select name="sub">
+                    <option value="uml">uml</option>
+                    <option value="ukr">ukr</option>
+                    <option value="hist">hist</option>
+                    <option value="math">math</option>
+                    <option value="mathst">mathst</option>
+                    <option value="phys">phys</option>
+                    <option value="chem">chem</option>
+                    <option value="bio">bio</option>
+                    <option value="geo">geo</option>
+                    <option value="eng">eng</option>
+                    <option value="fra">fra</option>
+                    <option value="deu">deu</option>
+                    <option value="spa">spa</option>
+                </select>
+
+                <select name="regname">
+                    <option value="Всі">Всі</option>
+                    <option value="Вінницька область">Вінницька область</option>
+                    <option value="Волинська область">Волинська область</option>
+                    <option value="Дніпропетровська область">Дніпропетровська область</option>
+                    <option value="Донецька область">Донецька область</option>
+                    <option value="Житомирська область">Житомирська область</option>
+                    <option value="Закарпатська область">Закарпатська область</option>
+                    <option value="Запорізька область">Запорізька область</option>
+                    <option value="Івано-Франківська область">Івано-Франківська область</option>
+                    <option value="Київська область">Київська область</option>
+                    <option value="Кіровоградська область">Кіровоградська область</option>
+                    <option value="Луганська область">Луганська область</option>
+                    <option value="Львівська область">Львівська область</option>
+                    <option value="м.Київ">м.Київ</option>
+                    <option value="Миколаївська область">Миколаївська область</option>
+                    <option value="Одеська область">Одеська область</option>
+                    <option value="Полтавська область">Полтавська область</option>
+                    <option value="Рівненська область">Рівненська область</option>
+                    <option value="Сумська область">Сумська область</option>
+                    <option value="Тернопільська область">Тернопільська область</option>
+                    <option value="Харківська область">Харківська область</option>
+                    <option value="Херсонська область">Херсонська область</option>
+                    <option value="Хмельницька область">Хмельницька область</option>
+                    <option value="Черкаська область">Черкаська область</option>
+                    <option value="Чернівецька область">Чернівецька область</option>
+                    <option value="Чернігівська область">Чернігівська область</option>
+                </select>
+
+                <button type="submit">Find</button>
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Regname</th>
+                            <th>Year</th>
+                            <th>AVG(Ball)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in avgBallList %}
+                        <tr>
+                            <td>{{ r[0] }}</td>
+                            <td>{{ r[1] }}</td>
+                            <td>{{ r[2] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+<!--        -->
+        <h2>Region entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_regs_by_params') }}">
+
+                <button type="submit">Find</button>
+                <input type="text" name="regname" placeholder="region name">
+                <h4>size = {{size}}</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>regname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in regs %}
+                        <tr>
+                            <td>{{ reg.regname }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_reg') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="regname" placeholder="region name">
+            </form>
+            <h4>{{addRegMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_reg') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="newregname" placeholder="new region name">
+            </form>
+            <h4>{{updateRegMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_reg') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="regname" placeholder="regname">
+            </form>
+            <h4>{{deleteRegMessage}}</h4>
+        </div>
+<!--        -->
+        <h2>Area entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_areas_by_params') }}">
+                <button type="submit">Find</button>
+                <input type="text" name="areaname" placeholder="area name">
+                <h4>size = {{size}}</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>areaname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for area in areas %}
+                        <tr>
+                            <td>{{ area.areaname }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_area') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="areaname" placeholder="area name">
+            </form>
+            <h4>{{addAreaMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_area') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="areaname" placeholder="area name">
+                <input type="text" name="newareaname" placeholder="new area name">
+            </form>
+            <h4>{{updateAreaMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_area') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="areaname" placeholder="areaname">
+            </form>
+            <h4>{{deleteAreaMessage}}</h4>
+        </div>
+
+        <!--        -->
+        <h2>Ter entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_ters_by_params') }}">
+
+                <button type="submit">Find</button>
+                <input type="text" name="tername" placeholder="ter name">
+                <input type="text" name="tertypename" placeholder="tertypename">
+                <h4>size = {{size}}</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>tername</th>
+                            <th>tertypename</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ter in ters %}
+                        <tr>
+                            <td>{{ ter.tername }}</td>
+                            <td>{{ ter.tertypename }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_ter') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="tername" placeholder="ter name">
+                <input type="text" name="tertypename" placeholder="tertypename">
+            </form>
+            <h4>{{addTerMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_ter') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="tername" placeholder="tername">
+                <input type="text" name="newtername" placeholder="new tername">
+                <input type="text" name="tertypename" placeholder="new tertypename">
+            </form>
+            <h4>{{updateTerMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_ter') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{deleteTerMessage}}</h4>
+        </div>
+<!--        -->
+        <h2>Eo entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_eo_by_params') }}">
+                <button type="submit">Find</button>
+                <input type="number" name="id" placeholder="eo id">
+                <input type="text" name="eoname" placeholder="eoname">
+                <input type="text" name="eotypename" placeholder="eotypename">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+
+                <h4>size = {{size}}</h4>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>eoname</th>
+                            <th>eotypename</th>
+                            <th>regname</th>
+                            <th>areaname</th>
+                            <th>tername</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eo in eoList %}
+                        <tr>
+                            <td>{{ eo.id }}</td>
+                            <td>{{ eo.eoname }}</td>
+                            <td>{{ eo.eotypename }}</td>
+                            <td>{{ eo.regname }}</td>
+                            <td>{{ eo.areaname }}</td>
+                            <td>{{ eo.tername }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_eo') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="eoname" placeholder="eoname">
+                <input type="text" name="eotypename" placeholder="eotypename">
+                <input type="text" name="eoparent" placeholder="eoparent">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{addEoMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_eo') }}">
+                <button type="submit">Update</button>
+                <input type="number" name="id" placeholder="eo id">
+                <input type="text" name="eoname" placeholder="eoname">
+                <input type="text" name="eotypename" placeholder="eotypename">
+                <input type="text" name="eoparent" placeholder="eoparent">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{updateEoMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_eo') }}">
+                <button type="submit">DELETE</button>
+                <input type="number" name="id" placeholder="eo id">
+            </form>
+            <h4>{{deleteEoMessage}}</h4>
+        </div>
+
+        <!--        -->
+        <h2>Pt entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_pt_by_params') }}">
+                <button type="submit">Find</button>
+                <input type="text" name="ptname" placeholder="ptname">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+
+                <h4>size = {{size}}</h4>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ptname</th>
+                            <th>regname</th>
+                            <th>areaname</th>
+                            <th>tername</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in ptList %}
+                        <tr>
+                            <td>{{ pt.name }}</td>
+                            <td>{{ pt.regname }}</td>
+                            <td>{{ pt.areaname }}</td>
+                            <td>{{ pt.tername }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_pt') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="ptname" placeholder="ptname">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{addPtMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_pt') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="ptname" placeholder="ptname">
+                <input type="text" name="newptname" placeholder="new ptname">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{updatePtMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_pt') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="ptname" placeholder="ptname">
+            </form>
+            <h4>{{deletePtMessage}}</h4>
+        </div>
+<!--        -->
+        <h2>Uml entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_uml_by_params') }}">
+
+                <button type="submit">Find</button>
+                <input type="text" name="id" placeholder="student id">
+                <input type="text" name="teststatus" placeholder="test status">
+                <input type="text" name="ptname" placeholder="ptname">
+
+                <h4>size = {{size}}</h4>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>student id</th>
+                            <th>test</th>
+                            <th>teststatus</th>
+                            <th>ball100</th>
+                            <th>ball12</th>
+                            <th>ball</th>
+                            <th>adaptscale</th>
+                            <th>ptname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for uml in umlList %}
+                        <tr>
+                            <td>{{ uml.id }}</td>
+                            <td>{{ uml.student_id }}</td>
+                            <td>{{ uml.test }}</td>
+                            <td>{{ uml.teststatus }}</td>
+                            <td>{{ uml.ball100 }}</td>
+                            <td>{{ uml.ball12 }}</td>
+                            <td>{{ uml.ball }}</td>
+                            <td>{{ uml.adaptscale }}</td>
+                            <td>{{ uml.ptname }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_uml') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="student_id" placeholder="student_id">
+                <input type="text" name="teststatus" placeholder="teststatus">
+                <input type="number" name="ball100" placeholder="ball100">
+                <input type="number" name="ball12" placeholder="ball12">
+                <input type="number" name="ball" placeholder="ball">
+                <input type="number" name="adaptscale" placeholder="adaptscale">
+                <input type="text" name="ptname" placeholder="ptname">
+            </form>
+            <h4>{{addUmlMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_uml') }}">
+                <button type="submit">Update</button>
+                <input type="number" name="id" placeholder="id">
+                <input type="text" name="student_id" placeholder="student id">
+                <input type="text" name="teststatus" placeholder="teststatus">
+                <input type="number" name="ball100" placeholder="ball100">
+                <input type="number" name="ball12" placeholder="ball12">
+                <input type="number" name="ball" placeholder="ball">
+                <input type="number" name="adaptscale" placeholder="adaptscale">
+                <input type="text" name="ptname" placeholder="ptname">
+            </form>
+            <h4>{{updateUmlMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_uml') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="id" placeholder="uml id">
+            </form>
+            <h4>{{deleteUmlMessage}}</h4>
+        </div>
+
+    <!--        -->
+        <h2>Student entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_students_by_params') }}">
+
+                <button type="submit">Find</button>
+                <input type="text" name="id" placeholder="student id">
+                <input type="number" name="year" placeholder="year">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="number" name="eo_id" placeholder="eo id">
+
+                <h4>size = {{size}}</h4>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Birth</th>
+                            <th>Year</th>
+                            <th>Sextypename</th>
+                            <th>classprofilename</th>
+                            <th>classlangname</th>
+                            <th>regtypename</th>
+                            <th>eo_id</th>
+                            <th>regname</th>
+                            <th>areaname</th>
+                            <th>tername</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.id }}</td>
+                            <td>{{ student.birth }}</td>
+                            <td>{{ student.year }}</td>
+                            <td>{{ student.Sextypename }}</td>
+                            <td>{{ student.classprofilename }}</td>
+                            <td>{{ student.classlangname }}</td>
+                            <td>{{ student.regtypename }}</td>
+                            <td>{{ student.eo_id }}</td>
+                            <td>{{ student.regname }}</td>
+                            <td>{{ student.areaname }}</td>
+                            <td>{{ student.tername }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_student') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="id" placeholder="student id">
+                <input type="number" name="birth" placeholder="birth">
+                <input type="number" name="year" placeholder="year">
+                <input type="text" name="sextypename" placeholder="sextypename">
+                <input type="text" name="classprofilename" placeholder="classprofilename">
+                <input type="text" name="classlangname" placeholder="classlangname">
+                <input type="text" name="regtypename" placeholder="regtypename">
+                <input type="number" name="eo_id" placeholder="eo id">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{addStudentMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_student') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="id" placeholder="student id">
+                <input type="number" name="birth" placeholder="birth">
+                <input type="number" name="year" placeholder="year">
+                <input type="text" name="sextypename" placeholder="sextypename">
+                <input type="text" name="classprofilename" placeholder="classprofilename">
+                <input type="text" name="classlangname" placeholder="classlangname">
+                <input type="text" name="regtypename" placeholder="regtypename">
+                <input type="number" name="eo_id" placeholder="eo id">
+                <input type="text" name="regname" placeholder="region name">
+                <input type="text" name="areaname" placeholder="areaname">
+                <input type="text" name="tername" placeholder="tername">
+            </form>
+            <h4>{{updateStudentMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_student') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="id" placeholder="student id">
+            </form>
+            <h4>{{deleteStudentMessage}}</h4>
+        </div>
+
+    </body>
+</html>
