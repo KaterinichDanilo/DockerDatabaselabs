@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 import crud
+import databaseMongo
 
 app = Flask(__name__)
 
@@ -20,12 +21,18 @@ def get_students_by_params():
     year = request.args['year']
     regname = request.args['regname']
     eo_id = request.args['eo_id']
-    studList = crud.get_students_by_params(id, year, regname, eo_id)
+    bdtype = request.args['bdtype']
+    if bdtype == 'mongodb':
+        if eo_id != '':
+            eo = crud.get_eo_by_id(eo_id)
+            if eo:
+                studList = databaseMongo.getStudentsByParams(outid=id, year=year, regname=regname, eoname=eo.eoname, eotypename=eo.eotypename, eoparent=eo.eoparent)
+            else:
+                studList = databaseMongo.getStudentsByParams(outid=id, year=year, regname=regname)
+    else:
+        studList = crud.get_students_by_params(id, year, regname, eo_id)
     size = len(studList)
     return render_template('index.html', size=size, students=studList)
-    # data = {'studentsList': studList, 'size': size}
-    # return jsonify(data)
-
 
 @app.route("/newstudent", methods=['POST'])
 def new_student():

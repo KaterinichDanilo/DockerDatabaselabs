@@ -57,11 +57,92 @@ def makeRequest(subject):
     print(resLst)
     return resLst
 
-def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename):
-    return
+def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                  eoname, eotypename, eoparent, eoregname, eoareaname, eotername, regname, areaname, tername):
+    student = {
+        'outid': outid,
+        'birth': birth,
+        'year': year,
+        'sextypename': sextypename,
+        'classprofilename': classprofilename,
+        'classlangname': classlangname,
+        'regtypename': regtypename,
+        'eoname': eoname,
+        'eotypename': eotypename,
+        'eoparent': eoparent,
+        'eoregname': eoregname,
+        'eoareaname': eoareaname,
+        'eotername': eotername,
+        'regname': eoregname,
+        'areaname': eoareaname,
+        'tername': eotername,
+    }
+
+    collection.insert_one(student)
+
+def deleteStudent(outid):
+    collection.delete_one({"outid": outid})
+
+def updateStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                  eoname, eotypename, eoparent, eoregname, eoareaname, eotername):
+    update_fields = {}
+
+    if birth is not None:
+        update_fields["birth"] = birth
+    if year is not None:
+        update_fields["year"] = year
+    if sextypename is not None:
+        update_fields["sextypename"] = sextypename
+    if classprofilename is not None:
+        update_fields["classprofilename"] = classprofilename
+    if classlangname is not None:
+        update_fields["classlangname"] = classlangname
+    if regtypename is not None:
+        update_fields["regtypename"] = regtypename
+    if eoname is not None:
+        update_fields["eoname"] = eoname
+    if eotypename is not None:
+        update_fields["eotypename"] = eotypename
+    if eoparent is not None:
+        update_fields["eoparent"] = eoparent
+    if eoareaname is not None:
+        update_fields["eoareaname"] = eoareaname
+    if eoregname is not None:
+        update_fields["eoregname"] = eoregname
+    if eotername is not None:
+        update_fields["eotername"] = eotername
+    if update_fields:
+        collection.update_one(
+            {"outid": outid},
+            {"$set": update_fields}
+        )
+
+def getStudentsByParams(outid, year, regname, eoname=None, eotypename=None, eoparent=None):
+    query = {}
+
+    if outid is not None and outid != '':
+        query["outid"] = outid
+    if year is not None and year != '':
+        query["year"] = year
+    if eoname is not None and eoname != '':
+        query["eoname"] = eoname
+    if eotypename is not None and eotypename != '':
+        query["eotypename"] = eotypename
+    if eoparent is not None and eoparent != '':
+        query["eoparent"] = eoparent
+    if regname is not None and regname != '':
+        query["regname"] = regname
+
+    return list(collection.find(query))
+
+
 # file = 'resources/Odata2019File.csv'
 # writeDataToMongoDB(file, 2019)
 # file = 'resources/Odata2021File.csv'
 # writeDataToMongoDB(file, 2021)
-makeRequest('umlball100')
+# makeRequest('umlball100')
 # result = collection.delete_many({})
+
+r = (getStudentsByParams(None, 2021, None, None, None, None))
+print(r)
+print(len(r))
