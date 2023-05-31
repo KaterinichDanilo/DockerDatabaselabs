@@ -164,6 +164,20 @@ class Ukr_test(Base):
     adaptscale = Column(Integer)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'subtest': self.subtest,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'adaptscale': self.adaptscale,
+            'ptname': self.ptname
+        }
+
 class Hist_test(Base):
     __tablename__ = 'hist_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -175,6 +189,19 @@ class Hist_test(Base):
     ball12 = Column(Float)
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
 
 class Math_test(Base):
     __tablename__ = 'math_test'
@@ -189,6 +216,20 @@ class Math_test(Base):
     dpalevel = Column(String)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'dpalevel': self.dpalevel,
+            'ptname': self.ptname
+        }
+
 class Mathst_test(Base):
     __tablename__ = 'mathst_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -199,6 +240,18 @@ class Mathst_test(Base):
     ball12 = Column(Float)
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
 
 class Phys_test(Base):
     __tablename__ = 'phys_test'
@@ -212,6 +265,19 @@ class Phys_test(Base):
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
+
 class Chem_test(Base):
     __tablename__ = 'chem_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -223,6 +289,19 @@ class Chem_test(Base):
     ball12 = Column(Float)
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
 
 class Bio_test(Base):
     __tablename__ = 'bio_test'
@@ -236,6 +315,19 @@ class Bio_test(Base):
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
+
 class Geo_test(Base):
     __tablename__ = 'geo_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -247,6 +339,19 @@ class Geo_test(Base):
     ball12 = Column(Float)
     ball = Column(Float)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'lang': self.lang,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'ptname': self.ptname
+        }
 
 class Eng_test(Base):
     __tablename__ = 'eng_test'
@@ -260,6 +365,19 @@ class Eng_test(Base):
     dpalevel = Column(String)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'dpalevel': self.dpalevel,
+            'ptname': self.ptname
+        }
+
 class Fra_test(Base):
     __tablename__ = 'fra_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -271,6 +389,19 @@ class Fra_test(Base):
     ball = Column(Float)
     dpalevel = Column(String)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'dpalevel': self.dpalevel,
+            'ptname': self.ptname
+        }
 
 class Deu_test(Base):
     __tablename__ = 'deu_test'
@@ -284,6 +415,19 @@ class Deu_test(Base):
     dpalevel = Column(String)
     ptname = Column(String, ForeignKey('pt.name'))
 
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'dpalevel': self.dpalevel,
+            'ptname': self.ptname
+        }
+
 class Spa_test(Base):
     __tablename__ = 'spa_test'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -295,6 +439,19 @@ class Spa_test(Base):
     ball = Column(Float)
     dpalevel = Column(String)
     ptname = Column(String, ForeignKey('pt.name'))
+
+    def to_string(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'test': self.test,
+            'teststatus': self.teststatus,
+            'ball100': self.ball100,
+            'ball12': self.ball12,
+            'ball': self.ball,
+            'dpalevel': self.dpalevel,
+            'ptname': self.ptname
+        }
 
 def create_reg(regname):
     reg = Reg(regname=regname)
@@ -332,6 +489,10 @@ def create_student(id, birth, year, sextypename, classprofilename, classlangname
 def get_eo_by_id(id):
     eo = session.get(Eo, id)
     return eo
+
+def get_pt_by_id(name):
+    pt = session.get(Pt, name)
+    return pt
 
 def get_student_by_id(id):
     eo = session.get(Student, id)
@@ -411,7 +572,6 @@ def update_student(student, birth, year, sextypename, classprofilename, classlan
     try:
         session.commit()
         redisHash.flushall()
-        session.commit()
     except Exception as e:
         session.rollback()
         raise e
@@ -455,7 +615,6 @@ def create_reg(regname):
 def update_reg(region, new_regname):
     if new_regname != '': region.regname = new_regname
     try:
-        session.commit()
         redisHash.flushall()
         session.commit()
     except Exception as e:
@@ -502,18 +661,16 @@ def create_area(areaname):
         raise e
 
 def update_area(area, new_areaname):
-    if new_areaname != '': area.regname = new_areaname
+    if new_areaname != '': area.areaname = new_areaname
     try:
         session.commit()
         redisHash.flushall()
-        session.commit()
     except Exception as e:
         session.rollback()
         raise e
 
 def delete_area(area):
     session.delete(area)
-    session.commit()
     redisHash.flushall()
     session.commit()
 
@@ -826,7 +983,8 @@ def create_eo(eoname, eotypename, eoparent, regname, areaname, tername):
         session.rollback()
         raise e
 
-def update_eo(eo, eotypename, eoparent, regname, areaname, tername):
+def update_eo(eo, eoname, eotypename, eoparent, regname, areaname, tername):
+    if eoname != '': eo.eoname = eoname
     if eotypename != '': eo.eotypename = eotypename
     if eoparent != '': eo.eoparent = eoparent
     if regname != '': eo.regname = regname
@@ -834,7 +992,6 @@ def update_eo(eo, eotypename, eoparent, regname, areaname, tername):
     if tername != '': eo.tername = tername
 
     try:
-        session.commit()
         redisHash.flushall()
         session.commit()
     except Exception as e:
@@ -859,13 +1016,13 @@ def get_pt_by_params(ptname, regname, areaname, tername):
         return json.loads(pt)
     query = session.query(Pt)
     if ptname != '':
-        query = query.filter(Pt.eoname == ptname)
+        query = query.filter(Pt.name == ptname)
     if regname != '':
-        query = query.filter(Eo.regname == regname)
+        query = query.filter(Pt.regname == regname)
     if areaname != '':
-        query = query.filter(Eo.areaname == areaname)
+        query = query.filter(Pt.areaname == areaname)
     if tername != '':
-        query = query.filter(Eo.tername == tername)
+        query = query.filter(Pt.tername == tername)
     results = query.all()
     results = [x.to_string() for x in results]
     print(results)
@@ -898,7 +1055,6 @@ def update_pt(pt, ptname, regname, areaname, tername):
     if tername != '': pt.tername = tername
 
     try:
-        session.commit()
         redisHash.flushall()
         session.commit()
     except Exception as e:
@@ -918,14 +1074,19 @@ def delete_pt(pt):
 def get_uml_by_id(id):
     uml = session.get(Uml_test, id)
     return uml
+
+def get_uml_by_student_id(id):
+    uml = session.query(Uml_test).filter_by(student_id=id).first()
+    return uml
+
 def get_uml_by_params(id, teststatus, ptname):
-    keyHash = f'ptList:{id}:{teststatus}:{ptname}'
+    keyHash = f'umlList:{id}:{teststatus}:{ptname}'
     uml = redisHash.get(keyHash)
     print(uml)
     if uml:
         return json.loads(uml)
     query = session.query(Uml_test)
-    if ptname != '':
+    if id != '':
         query = query.filter(Uml_test.student_id == id)
     if teststatus != '':
         query = query.filter(Uml_test.teststatus == teststatus)
@@ -957,8 +1118,7 @@ def create_uml(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname
     except Exception as e:
         raise e
 
-def update_uml(uml, student_id, teststatus, ball100, ball12, ball, adaptscale, ptname):
-    if student_id != '': uml.student_id = student_id
+def update_uml(uml, teststatus, ball100, ball12, ball, adaptscale, ptname):
     if teststatus != '': uml.teststatus = teststatus
     if ball100 != '': uml.ball100 = ball100
     if ball12 != '': uml.ball12 = ball12
@@ -967,7 +1127,6 @@ def update_uml(uml, student_id, teststatus, ball100, ball12, ball, adaptscale, p
     if ptname != '': uml.ptname = ptname
 
     try:
-        session.commit()
         redisHash.flushall()
         session.commit()
     except Exception as e:
@@ -977,6 +1136,78 @@ def update_uml(uml, student_id, teststatus, ball100, ball12, ball, adaptscale, p
 def delete_uml(uml):
     try:
         session.delete(uml)
+        session.commit()
+        redisHash.flushall()
+    except Exception as e:
+        raise e
+
+# UKR
+def get_ukr_by_id(id):
+    ukr = session.get(Ukr_test, id)
+    return ukr
+
+def get_ukr_by_student_id(id):
+    ukr = session.query(Ukr_test).filter_by(student_id=id).first()
+    return ukr
+
+def get_ukr_by_params(id, teststatus, ptname):
+    keyHash = f'ukrList:{id}:{teststatus}:{ptname}'
+    ukr = redisHash.get(keyHash)
+    print(ukr)
+    if ukr:
+        return json.loads(ukr)
+    query = session.query(Ukr_test)
+    if id != '':
+        query = query.filter(Ukr_test.student_id == id)
+    if teststatus != '':
+        query = query.filter(Ukr_test.teststatus == teststatus)
+    if ptname != '':
+        query = query.filter(Ukr_test.ptname == ptname)
+    results = query.all()
+    results = [x.to_string() for x in results]
+    print(results)
+    redisHash.set(keyHash, json.dumps(results))
+    return results
+
+def create_ukr(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    student_id = student_id if student_id != '' else None
+    subtest = subtest if subtest != '' else None
+    teststatus = teststatus if teststatus != '' else None
+    ball100 = ball100 if ball100 != '' else None
+    ball12 = ball12 if ball12 != '' else None
+    ball = ball if ball != '' else None
+    adaptscale = adaptscale if adaptscale != '' else None
+    ptname = ptname if ptname != '' else None
+
+    try:
+        new_ukr = Ukr_test(student_id=student_id, subtest=subtest, teststatus=teststatus,
+                           ball100=ball100, ball12=ball12, ball=ball, adaptscale=adaptscale, ptname=ptname)
+        session.add(new_ukr)
+        print('created ukr')
+        session.commit()
+        redisHash.flushall()
+    except Exception as e:
+        raise e
+
+def update_ukr(ukr, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    if subtest != '': ukr.subtest = subtest
+    if teststatus != '': ukr.teststatus = teststatus
+    if ball100 != '': ukr.ball100 = ball100
+    if ball12 != '': ukr.ball12 = ball12
+    if ball != '': ukr.ball = ball
+    if adaptscale != '': ukr.adaptscale = adaptscale
+    if ptname != '': ukr.ptname = ptname
+
+    try:
+        redisHash.flushall()
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def delete_ukr(ukr):
+    try:
+        session.delete(ukr)
         session.commit()
         redisHash.flushall()
     except Exception as e:

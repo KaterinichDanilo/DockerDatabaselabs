@@ -386,7 +386,7 @@ def update_pt():
 def delete_pt():
     print(request)
     ptname = request.form['ptname']
-    pt = crud.get_eo_by_id(ptname)
+    pt = crud.get_pt_by_id(ptname)
     if pt:
         try:
             crud.delete_pt(pt)
@@ -428,7 +428,6 @@ def new_uml():
 
 @app.route("/updateuml", methods=['POST'])
 def update_uml():
-    id = request.form['id']
     student_id = request.form['student_id']
     teststatus = request.form['teststatus']
     ball100 = request.form['ball100']
@@ -437,10 +436,10 @@ def update_uml():
     adaptscale = request.form['adaptscale']
     ptname = request.form['ptname']
 
-    uml = crud.get_uml_by_id(id)
+    uml = crud.get_uml_by_student_id(student_id)
     if uml:
         try:
-            crud.update_uml(uml, student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            crud.update_uml(uml, teststatus, ball100, ball12, ball, adaptscale, ptname)
             return render_template('index.html', updateUmlMessage='Uml оновлено')
         except Exception as e:
             print(e)
@@ -452,15 +451,85 @@ def update_uml():
 def delete_uml():
     print(request)
     id = request.form['id']
-    uml = crud.get_uml_by_id(id)
+    uml = crud.get_uml_by_student_id(id)
     if uml:
         try:
             crud.delete_uml(uml)
             return render_template('index.html', deleteUmlMessage='Uml видалено')
         except Exception as e:
+            print(e)
             crud.sessionRollback()
             return render_template('index.html', deleteUmlMessage='Сталася помилка')
     else: return render_template('index.html', deleteUmlMessage='Uml з таким id не знайдено')
+
+# UKR
+@app.route("/getukrbyparams", methods=['GET'])
+def get_ukr_by_params():
+    print(request)
+    id = request.args['id']
+    teststatus = request.args['teststatus']
+    ptname = request.args['ptname']
+    ukrList = crud.get_ukr_by_params(id, teststatus, ptname)
+    size = len(ukrList)
+    return render_template('index.html', size=size, ukrList=ukrList)
+
+@app.route("/newukr", methods=['POST'])
+def new_ukr():
+    print(request)
+    student_id = request.form['student_id']
+    subtest = request.form['subtest']
+    teststatus = request.form['teststatus']
+    ball100 = request.form['ball100']
+    ball12 = request.form['ball12']
+    ball = request.form['ball']
+    adaptscale = request.form['adaptscale']
+    ptname = request.form['ptname']
+
+    try:
+        crud.create_ukr(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', addUkrMessage='Ukr_test додано')
+    except Exception as e:
+        print("Помилка при додаванні ukr:", str(e))
+        crud.sessionRollback()
+        return render_template('index.html', addUkrMessage='Сталася помилка')
+
+@app.route("/updateukr", methods=['POST'])
+def update_ukr():
+    student_id = request.form['student_id']
+    subtest = request.form['subtest']
+    teststatus = request.form['teststatus']
+    ball100 = request.form['ball100']
+    ball12 = request.form['ball12']
+    ball = request.form['ball']
+    adaptscale = request.form['adaptscale']
+    ptname = request.form['ptname']
+
+    ukr = crud.get_ukr_by_student_id(student_id)
+    if ukr:
+        try:
+            crud.update_ukr(ukr, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            return render_template('index.html', updateUkrMessage='Ukr оновлено')
+        except Exception as e:
+            print(e)
+            crud.sessionRollback()
+            return render_template('index.html', updateUkrMessage='Сталася помилка')
+    else: return render_template('index.html', updateUkrMessage='Uml з таким id не знайдено')
+
+@app.route("/deleteukr", methods=['POST'])
+def delete_ukr():
+    print(request)
+    id = request.form['id']
+    ukr = crud.get_ukr_by_student_id(id)
+    if ukr:
+        try:
+            crud.delete_ukr(ukr)
+            return render_template('index.html', deleteUkrMessage='Ukr видалено')
+        except Exception as e:
+            print(e)
+            crud.sessionRollback()
+            return render_template('index.html', deleteUkrMessage='Сталася помилка')
+    else: return render_template('index.html', deleteUkrMessage='Ukr з таким id не знайдено')
+
 
 def run():
     app.run(host='0.0.0.0', port=8080, debug=False)

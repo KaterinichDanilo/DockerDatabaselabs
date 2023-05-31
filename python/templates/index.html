@@ -73,6 +73,7 @@
             </form>
         </div>
 <!--        -->
+        <hr>
         <h2>Region entity</h2>
         <div>
             <h3>Read</h3>
@@ -126,6 +127,7 @@
             <h4>{{deleteRegMessage}}</h4>
         </div>
 <!--        -->
+        <hr>
         <h2>Area entity</h2>
         <div>
             <h3>Read</h3>
@@ -237,6 +239,7 @@
             <h4>{{deleteTerMessage}}</h4>
         </div>
 <!--        -->
+        <hr>
         <h2>Eo entity</h2>
         <div>
             <h3>Read</h3>
@@ -257,6 +260,7 @@
                             <th>ID</th>
                             <th>eoname</th>
                             <th>eotypename</th>
+                            <th>eoparent</th>
                             <th>regname</th>
                             <th>areaname</th>
                             <th>tername</th>
@@ -268,6 +272,7 @@
                             <td>{{ eo.id }}</td>
                             <td>{{ eo.eoname }}</td>
                             <td>{{ eo.eotypename }}</td>
+                            <td>{{ eo.eoparent }}</td>
                             <td>{{ eo.regname }}</td>
                             <td>{{ eo.areaname }}</td>
                             <td>{{ eo.tername }}</td>
@@ -317,6 +322,7 @@
         </div>
 
         <!--        -->
+        <hr>
         <h2>Pt entity</h2>
         <div>
             <h3>Read</h3>
@@ -332,7 +338,6 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>ptname</th>
                             <th>regname</th>
                             <th>areaname</th>
@@ -387,6 +392,7 @@
             <h4>{{deletePtMessage}}</h4>
         </div>
     <!--        -->
+        <hr>
         <h2>Student entity</h2>
         <div>
             <h3>Read</h3>
@@ -484,6 +490,7 @@
             <h4>{{deleteStudentMessage}}</h4>
         </div>
     <!--        -->
+        <hr>
         <h2>Uml entity</h2>
         <div>
             <h3>Read</h3>
@@ -548,7 +555,6 @@
             <h3>Update</h3>
             <form method="POST" action="{{ url_for('update_uml') }}">
                 <button type="submit">Update</button>
-                <input type="number" name="id" placeholder="id">
                 <input type="text" name="student_id" placeholder="student id">
                 <input type="text" name="teststatus" placeholder="teststatus">
                 <input type="number" name="ball100" placeholder="ball100">
@@ -564,9 +570,104 @@
             <h3>Delete</h3>
             <form method="POST" action="{{ url_for('delete_uml') }}">
                 <button type="submit">DELETE</button>
-                <input type="text" name="id" placeholder="uml id">
+                <input type="text" name="id" placeholder="student id">
             </form>
             <h4>{{deleteUmlMessage}}</h4>
+        </div>
+
+    <!--        -->
+        <hr>
+        <h2>Ukr entity</h2>
+        <div>
+            <h3>Read</h3>
+            <form method="GET" action="{{ url_for('get_ukr_by_params') }}">
+
+                <button type="submit">Find</button>
+                <input type="text" name="id" placeholder="student id">
+                <input type="text" name="teststatus" placeholder="test status">
+                <input type="text" name="ptname" placeholder="ptname">
+
+                <h4>size = {{size}}</h4>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>student id</th>
+                            <th>subtest</th>
+                            <th>teststatus</th>
+                            <th>ball100</th>
+                            <th>ball12</th>
+                            <th>ball</th>
+                            <th>adaptscale</th>
+                            <th>ptname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ukr in ukrList %}
+                        <tr>
+                            <td>{{ ukr.id }}</td>
+                            <td>{{ ukr.student_id }}</td>
+                            <td>{{ ukr.subtest }}</td>
+                            <td>{{ ukr.teststatus }}</td>
+                            <td>{{ ukr.ball100 }}</td>
+                            <td>{{ ukr.ball12 }}</td>
+                            <td>{{ ukr.ball }}</td>
+                            <td>{{ ukr.adaptscale }}</td>
+                            <td>{{ ukr.ptname }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div>
+            <h3>Create</h3>
+            <form method="POST" action="{{ url_for('new_ukr') }}">
+                <button type="submit">Create</button>
+                <input type="text" name="student_id" placeholder="student_id">
+                <select name="subtest">
+                    <option value="Так">Так</option>
+                    <option value="Ні">Ні</option>
+                </select>
+                <input type="text" name="teststatus" placeholder="teststatus">
+                <input type="number" name="ball100" placeholder="ball100">
+                <input type="number" name="ball12" placeholder="ball12">
+                <input type="number" name="ball" placeholder="ball">
+                <input type="number" name="adaptscale" placeholder="adaptscale">
+                <input type="text" name="ptname" placeholder="ptname">
+            </form>
+            <h4>{{addUkrMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Update</h3>
+            <form method="POST" action="{{ url_for('update_ukr') }}">
+                <button type="submit">Update</button>
+                <input type="text" name="student_id" placeholder="student id">
+                <select name="subtest">
+                    <option value="''">Не змінювати</option>
+                    <option value="Так">Так</option>
+                    <option value="Ні">Ні</option>
+                </select>
+                <input type="text" name="teststatus" placeholder="teststatus">
+                <input type="number" name="ball100" placeholder="ball100">
+                <input type="number" name="ball12" placeholder="ball12">
+                <input type="number" name="ball" placeholder="ball">
+                <input type="number" name="adaptscale" placeholder="adaptscale">
+                <input type="text" name="ptname" placeholder="ptname">
+            </form>
+            <h4>{{updateUkrMessage}}</h4>
+        </div>
+
+        <div>
+            <h3>Delete</h3>
+            <form method="POST" action="{{ url_for('delete_ukr') }}">
+                <button type="submit">DELETE</button>
+                <input type="text" name="id" placeholder="student id">
+            </form>
+            <h4>{{deleteUkrMessage}}</h4>
         </div>
 
     </body>
