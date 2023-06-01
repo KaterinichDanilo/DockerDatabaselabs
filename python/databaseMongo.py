@@ -24,7 +24,10 @@ def writeDataToMongoDB(filename, year):
             row['year'] = year
             collection.insert_one(row)
 
-def makeRequest(subject):
+def getAvgSub(subject):
+    if subject == 'mathst':
+        subject = 'mathstball12'
+    else: subject += 'ball100'
     pipeline = [
         {
             '$match': {
@@ -58,7 +61,7 @@ def makeRequest(subject):
     return resLst
 
 def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
-                  eoname, eotypename, eoparent, eoregname, eoareaname, eotername, regname, areaname, tername):
+                  regname, areaname, tername, eoname=None, eotypename=None, eoparent=None, eoregname=None, eoareaname=None, eotername=None):
     student = {
         'outid': outid,
         'birth': birth,
@@ -73,31 +76,35 @@ def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangna
         'eoregname': eoregname,
         'eoareaname': eoareaname,
         'eotername': eotername,
-        'regname': eoregname,
-        'areaname': eoareaname,
-        'tername': eotername,
+        'regname': regname,
+        'areaname': areaname,
+        'tername': tername,
     }
 
-    collection.insert_one(student)
+    try:
+        collection.insert_one(student)
+    except Exception as e:
+        print(e)
+        raise e
 
 def deleteStudent(outid):
     collection.delete_one({"outid": outid})
 
 def updateStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
-                  eoname, eotypename, eoparent, eoregname, eoareaname, eotername):
+                  eoname=None, eotypename=None, eoparent=None, eoregname=None, eoareaname=None, eotername=None):
     update_fields = {}
 
-    if birth is not None:
+    if birth is not None and birth != '':
         update_fields["birth"] = birth
-    if year is not None:
+    if year is not None and year != '':
         update_fields["year"] = year
-    if sextypename is not None:
+    if sextypename is not None and sextypename != '':
         update_fields["sextypename"] = sextypename
-    if classprofilename is not None:
+    if classprofilename is not None and classprofilename != '':
         update_fields["classprofilename"] = classprofilename
-    if classlangname is not None:
+    if classlangname is not None and classlangname != '':
         update_fields["classlangname"] = classlangname
-    if regtypename is not None:
+    if regtypename is not None and regtypename != '':
         update_fields["regtypename"] = regtypename
     if eoname is not None:
         update_fields["eoname"] = eoname
@@ -117,7 +124,7 @@ def updateStudent(outid, birth, year, sextypename, classprofilename, classlangna
             {"$set": update_fields}
         )
 
-def getStudentsByParams(outid, year, regname, eoname=None, eotypename=None, eoparent=None):
+def getStudentsByParams(outid, year, regname, eoname=None, eoparent=None, eoregname=None):
     query = {}
 
     if outid is not None and outid != '':
@@ -126,8 +133,8 @@ def getStudentsByParams(outid, year, regname, eoname=None, eotypename=None, eopa
         query["year"] = year
     if eoname is not None and eoname != '':
         query["eoname"] = eoname
-    if eotypename is not None and eotypename != '':
-        query["eotypename"] = eotypename
+    if eoregname is not None and eoregname != '':
+        query["eoregname"] = eoregname
     if eoparent is not None and eoparent != '':
         query["eoparent"] = eoparent
     if regname is not None and regname != '':
@@ -135,6 +142,17 @@ def getStudentsByParams(outid, year, regname, eoname=None, eotypename=None, eopa
 
     return list(collection.find(query))
 
+def getSubByParams(sub, outid, teststatus, ptname):
+    query = {}
+
+    if outid is not None and outid != '':
+        query["outid"] = outid
+    if teststatus is not None and teststatus != '':
+        query[sub + "teststatus"] = teststatus
+    if ptname is not None and ptname != '':
+        query[sub+"ptname"] = ptname
+
+    return list(collection.find(query))
 
 # file = 'resources/Odata2019File.csv'
 # writeDataToMongoDB(file, 2019)
@@ -142,7 +160,3 @@ def getStudentsByParams(outid, year, regname, eoname=None, eotypename=None, eopa
 # writeDataToMongoDB(file, 2021)
 # makeRequest('umlball100')
 # result = collection.delete_many({})
-
-r = (getStudentsByParams(None, 2021, None, None, None, None))
-print(r)
-print(len(r))

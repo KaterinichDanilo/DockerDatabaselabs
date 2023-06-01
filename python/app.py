@@ -1,6 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
-import crud
-import databaseMongo
+import crud, databaseMongo
 
 app = Flask(__name__)
 
@@ -21,16 +20,19 @@ def get_students_by_params():
     year = request.args['year']
     regname = request.args['regname']
     eo_id = request.args['eo_id']
-    bdtype = request.args['bdtype']
-    if bdtype == 'mongodb':
+    db = request.args['db']
+
+    if db == 'mongo':
         if eo_id != '':
             eo = crud.get_eo_by_id(eo_id)
             if eo:
-                studList = databaseMongo.getStudentsByParams(outid=id, year=year, regname=regname, eoname=eo.eoname, eotypename=eo.eotypename, eoparent=eo.eoparent)
-            else:
-                studList = databaseMongo.getStudentsByParams(outid=id, year=year, regname=regname)
-    else:
+                studList = databaseMongo.getStudentsByParams(id, year, regname, eo.eoname, eo.eoparent, eo.regname)
+            else: studList = []
+        else:
+            studList = databaseMongo.getStudentsByParams(id, year, regname)
+    elif db == 'postgresql':
         studList = crud.get_students_by_params(id, year, regname, eo_id)
+
     size = len(studList)
     return render_template('index.html', size=size, students=studList)
 
@@ -48,10 +50,23 @@ def new_student():
     regname = request.form['regname']
     areaname = request.form['areaname']
     tername = request.form['tername']
+    db = request.args['db']
 
     try:
-        crud.create_student(id, birth, year, sextypename, classprofilename, classlangname,
-                            regtypename, eo_id, regname, areaname, tername)
+        if db == 'mongo':
+            if eo_id != '':
+                eo = crud.get_eo_by_id(eo_id)
+                if eo:
+                    databaseMongo.addNewStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                  regname, areaname, tername, regname, eo.eoname, eo.eotypename, eo.eoparent, eo.regname, eo.areaname, eo.tername)
+                else:
+                    return render_template('index.html', addStudentMessage='Навчального закладу з таким id не знайдено')
+            else:
+                databaseMongo.addNewStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                                            regname, areaname, tername, regname)
+        elif db == 'postgresql':
+            crud.create_student(id, birth, year, sextypename, classprofilename, classlangname,
+                                regtypename, eo_id, regname, areaname, tername)
         return render_template('index.html', addStudentMessage='Студента додано')
     except Exception as e:
         print("Помилка при додаванні студента:", str(e))
@@ -70,31 +85,56 @@ def update_student():
     regname = request.form['regname']
     areaname = request.form['areaname']
     tername = request.form['tername']
+    db = request.args['db']
 
-    student = crud.get_student_by_id(id)
-    if student:
-        try:
-            crud.update_student(student, birth, year, sextypename, classprofilename, classlangname,
-                   regtypename, eo_id, regname, areaname, tername)
-            return render_template('index.html', updateStudentMessage='Студента оновлено')
-        except Exception as e:
-            crud.sessionRollback()
-            return render_template('index.html', updateStudentMessage='Сталася помилка')
-    else: return render_template('index.html', updateStudentMessage='Студента з таким id не знайдено')
+    if db == 'mongo':
+        if eo_id != '':
+            eo = crud.get_eo_by_id(eo_id)
+            if eo:
+                databaseMongo.updateStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                                            regname, areaname, tername, regname, eo.eoname, eo.eotypename, eo.eoparent,
+                                            eo.regname, eo.areaname, eo.tername)
+            else:
+                return render_template('index.html', updateStudentMessage='Навчального закладу з таким id не знайдено')
+        else:
+            databaseMongo.updateStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
+                                        regname, areaname, tername, regname)
+    elif db == 'postgresql':
+        student = crud.get_student_by_id(id)
+        if student:
+            try:
+                crud.update_student(student, birth, year, sextypename, classprofilename, classlangname,
+                                    regtypename, eo_id, regname, areaname, tername)
+                return render_template('index.html', updateStudentMessage='Студента оновлено')
+            except Exception as e:
+                crud.sessionRollback()
+                return render_template('index.html', updateStudentMessage='Сталася помилка')
+        else:
+            return render_template('index.html', updateStudentMessage='Студента з таким id не знайдено')
+
+
 
 @app.route("/deletestudent", methods=['POST'])
 def delete_student():
     print(request)
     id = request.form['id']
-    student = crud.get_student_by_id(id)
-    if student:
-        try:
-            crud.delete_student(student)
-            return render_template('index.html', deleteStudentMessage='Студента видалено')
-        except Exception as e:
-            crud.sessionRollback()
-            return render_template('index.html', deleteStudentMessage='Сталася помилка')
-    else: return render_template('index.html', deleteStudentMessage='Студента з таким id не знайдено')
+    db = request.args['db']
+
+    if db == 'mongo':
+        databaseMongo.deleteStudent(id)
+    elif db == 'postgresql':
+        student = crud.get_student_by_id(id)
+        if student:
+            try:
+                crud.delete_student(student)
+                return render_template('index.html', deleteStudentMessage='Студента видалено')
+            except Exception as e:
+                crud.sessionRollback()
+                return render_template('index.html', deleteStudentMessage='Сталася помилка')
+        else:
+            return render_template('index.html', deleteStudentMessage='Студента з таким id не знайдено')
+
+
 
 @app.route("/getavgball", methods=['GET'])
 def get_avg_ball():
@@ -116,8 +156,13 @@ def get_avg_ball():
     print(sub)
     reg = request.args['regname']
     print(reg)
-    results = subjectsDict.get(sub)()
-    print(results)
+    db = request.args['db']
+
+    if db == 'mongo':
+        results = databaseMongo.getAvgSub(sub)
+    elif db == 'postgresql':
+        results = subjectsDict.get(sub)()
+
     results.sort(key=lambda x: (x[0], x[1]))
     if reg == 'Всі':
         return render_template('index.html', avgBallList=results)
@@ -393,7 +438,7 @@ def update_pt():
 def delete_pt():
     print(request)
     ptname = request.form['ptname']
-    pt = crud.get_eo_by_id(ptname)
+    pt = crud.get_pt_by_id(ptname)
     if pt:
         try:
             crud.delete_pt(pt)
@@ -410,9 +455,16 @@ def get_uml_by_params():
     id = request.args['id']
     teststatus = request.args['teststatus']
     ptname = request.args['ptname']
-    umlList = crud.get_uml_by_params(id, teststatus, ptname)
-    size = len(umlList)
-    return render_template('index.html', size=size, umlList=umlList)
+    db = request.args['db']
+
+    if db == 'mongo':
+        umlList = databaseMongo.getSubByParams('uml', id, teststatus, ptname)
+        return render_template('index.html', size=len(umlList), umlListMongo=umlList)
+    elif db == 'postgresql':
+        umlList = crud.get_uml_by_params(id, teststatus, ptname)
+        size = len(umlList)
+        return render_template('index.html', size=size, umlList=umlList)
+
 
 @app.route("/newuml", methods=['POST'])
 def new_uml():
@@ -435,7 +487,6 @@ def new_uml():
 
 @app.route("/updateuml", methods=['POST'])
 def update_uml():
-    id = request.form['id']
     student_id = request.form['student_id']
     teststatus = request.form['teststatus']
     ball100 = request.form['ball100']
@@ -444,10 +495,10 @@ def update_uml():
     adaptscale = request.form['adaptscale']
     ptname = request.form['ptname']
 
-    uml = crud.get_uml_by_id(id)
+    uml = crud.get_uml_by_student_id(student_id)
     if uml:
         try:
-            crud.update_uml(uml, student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            crud.update_uml(uml, teststatus, ball100, ball12, ball, adaptscale, ptname)
             return render_template('index.html', updateUmlMessage='Uml оновлено')
         except Exception as e:
             print(e)
@@ -459,17 +510,85 @@ def update_uml():
 def delete_uml():
     print(request)
     id = request.form['id']
-    uml = crud.get_uml_by_id(id)
+    uml = crud.get_uml_by_student_id(id)
     if uml:
         try:
             crud.delete_uml(uml)
             return render_template('index.html', deleteUmlMessage='Uml видалено')
         except Exception as e:
+            print(e)
             crud.sessionRollback()
             return render_template('index.html', deleteUmlMessage='Сталася помилка')
     else: return render_template('index.html', deleteUmlMessage='Uml з таким id не знайдено')
 
+# UKR
+@app.route("/getukrbyparams", methods=['GET'])
+def get_ukr_by_params():
+    print(request)
+    id = request.args['id']
+    teststatus = request.args['teststatus']
+    ptname = request.args['ptname']
+    ukrList = crud.get_ukr_by_params(id, teststatus, ptname)
+    size = len(ukrList)
+    return render_template('index.html', size=size, ukrList=ukrList)
+
+@app.route("/newukr", methods=['POST'])
+def new_ukr():
+    print(request)
+    student_id = request.form['student_id']
+    subtest = request.form['subtest']
+    teststatus = request.form['teststatus']
+    ball100 = request.form['ball100']
+    ball12 = request.form['ball12']
+    ball = request.form['ball']
+    adaptscale = request.form['adaptscale']
+    ptname = request.form['ptname']
+
+    try:
+        crud.create_ukr(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', addUkrMessage='Ukr_test додано')
+    except Exception as e:
+        print("Помилка при додаванні ukr:", str(e))
+        crud.sessionRollback()
+        return render_template('index.html', addUkrMessage='Сталася помилка')
+
+@app.route("/updateukr", methods=['POST'])
+def update_ukr():
+    student_id = request.form['student_id']
+    subtest = request.form['subtest']
+    teststatus = request.form['teststatus']
+    ball100 = request.form['ball100']
+    ball12 = request.form['ball12']
+    ball = request.form['ball']
+    adaptscale = request.form['adaptscale']
+    ptname = request.form['ptname']
+
+    ukr = crud.get_ukr_by_student_id(student_id)
+    if ukr:
+        try:
+            crud.update_ukr(ukr, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            return render_template('index.html', updateUkrMessage='Ukr оновлено')
+        except Exception as e:
+            print(e)
+            crud.sessionRollback()
+            return render_template('index.html', updateUkrMessage='Сталася помилка')
+    else: return render_template('index.html', updateUkrMessage='Uml з таким id не знайдено')
+
+@app.route("/deleteukr", methods=['POST'])
+def delete_ukr():
+    print(request)
+    id = request.form['id']
+    ukr = crud.get_ukr_by_student_id(id)
+    if ukr:
+        try:
+            crud.delete_ukr(ukr)
+            return render_template('index.html', deleteUkrMessage='Ukr видалено')
+        except Exception as e:
+            print(e)
+            crud.sessionRollback()
+            return render_template('index.html', deleteUkrMessage='Сталася помилка')
+    else: return render_template('index.html', deleteUkrMessage='Ukr з таким id не знайдено')
+
+
 def run():
     app.run(host='0.0.0.0', port=8080, debug=False)
-
-# run()
