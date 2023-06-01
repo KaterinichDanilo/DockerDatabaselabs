@@ -51,6 +51,11 @@
                     <option value="Чернігівська область">Чернігівська область</option>
                 </select>
 
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
+
                 <button type="submit">Find</button>
                 <table class="dataTable">
                     <thead>
@@ -404,6 +409,11 @@
                 <input type="text" name="regname" placeholder="region name">
                 <input type="number" name="eo_id" placeholder="eo id">
 
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
+
                 <h4>size = {{size}}</h4>
 
                 <table class="dataTable">
@@ -440,6 +450,51 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Birth</th>
+                            <th>Year</th>
+                            <th>Sextypename</th>
+                            <th>classprofilename</th>
+                            <th>classlangname</th>
+                            <th>regtypename</th>
+                            <th>eo name</th>
+                            <th>eo typename</th>
+                            <th>eo regname</th>
+                            <th>eo areaname</th>
+                            <th>eo tername</th>
+                            <th>regname</th>
+                            <th>areaname</th>
+                            <th>tername</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in studentsMongo %}
+                        <tr>
+                            <td>{{ student["outid"] }}</td>
+                            <td>{{ student["birth"] }}</td>
+                            <td>{{ student.["year"] }}</td>
+                            <td>{{ student.["sextypename"] }}</td>
+                            <td>{{ student['classprofilename'] }}</td>
+                            <td>{{ student['classlangname'] }}</td>
+                            <td>{{ student['regtypename'] }}</td>
+                            <td>{{ student[eoname] }}</td>
+                            <td>{{ student['eotypename] }}</td>
+                            <td>{{ student['regname'] }}</td>
+                            <td>{{ student['areaname'] }}</td>
+                            <td>{{ student['tername'] }}</td>
+                            <td>{{ student['regname'] }}</td>
+                            <td>{{ student['areaname'] }}</td>
+                            <td>{{ student['tername'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
             </form>
         </div>
 
@@ -458,6 +513,10 @@
                 <input type="text" name="regname" placeholder="region name">
                 <input type="text" name="areaname" placeholder="areaname">
                 <input type="text" name="tername" placeholder="tername">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{addStudentMessage}}</h4>
         </div>
@@ -477,6 +536,10 @@
                 <input type="text" name="regname" placeholder="region name">
                 <input type="text" name="areaname" placeholder="areaname">
                 <input type="text" name="tername" placeholder="tername">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{updateStudentMessage}}</h4>
         </div>
@@ -486,6 +549,10 @@
             <form method="POST" action="{{ url_for('delete_student') }}">
                 <button type="submit">DELETE</button>
                 <input type="text" name="id" placeholder="student id">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{deleteStudentMessage}}</h4>
         </div>
@@ -500,8 +567,41 @@
                 <input type="text" name="id" placeholder="student id">
                 <input type="text" name="teststatus" placeholder="test status">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
 
                 <h4>size = {{size}}</h4>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>student id</th>
+                            <th>test</th>
+                            <th>teststatus</th>
+                            <th>ball100</th>
+                            <th>ball12</th>
+                            <th>ball</th>
+                            <th>adaptscale</th>
+                            <th>ptname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for uml in umlListMongo %}
+                        <tr>
+                            <td>{{ uml['outid'] }}</td>
+                            <td>{{ uml['umltest'] }}</td>
+                            <td>{{ uml['umlteststatus'] }}</td>
+                            <td>{{ uml['umlball100'] }}</td>
+                            <td>{{ uml['umlball12'] }}</td>
+                            <td>{{ uml['umlball'] }}</td>
+                            <td>{{ uml['umladaptscale'] }}</td>
+                            <td>{{ uml['umlptname'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
                 <table class="dataTable">
                     <thead>
@@ -533,6 +633,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
             </form>
         </div>
 
@@ -547,6 +648,10 @@
                 <input type="number" name="ball" placeholder="ball">
                 <input type="number" name="adaptscale" placeholder="adaptscale">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{addUmlMessage}}</h4>
         </div>
@@ -562,6 +667,10 @@
                 <input type="number" name="ball" placeholder="ball">
                 <input type="number" name="adaptscale" placeholder="adaptscale">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{updateUmlMessage}}</h4>
         </div>
@@ -571,6 +680,10 @@
             <form method="POST" action="{{ url_for('delete_uml') }}">
                 <button type="submit">DELETE</button>
                 <input type="text" name="id" placeholder="student id">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{deleteUmlMessage}}</h4>
         </div>
@@ -586,6 +699,10 @@
                 <input type="text" name="id" placeholder="student id">
                 <input type="text" name="teststatus" placeholder="test status">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
 
                 <h4>size = {{size}}</h4>
 
@@ -619,6 +736,36 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>student id</th>
+                            <th>subtest</th>
+                            <th>teststatus</th>
+                            <th>ball100</th>
+                            <th>ball12</th>
+                            <th>ball</th>
+                            <th>adaptscale</th>
+                            <th>ptname</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ukr in ukrListMongo %}
+                        <tr>
+                            <td>{{ ukr['outid'] }}</td>
+                            <td>{{ ukr['ukrsubtest'] }}</td>
+                            <td>{{ ukr['ukrteststatus'] }}</td>
+                            <td>{{ ukr['ukrball100'] }}</td>
+                            <td>{{ ukr['ukrball12'] }}</td>
+                            <td>{{ ukr['ukrball'] }}</td>
+                            <td>{{ ukr['ukradaptscale'] }}</td>
+                            <td>{{ ukr['ukrptname'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
             </form>
         </div>
 
@@ -637,6 +784,10 @@
                 <input type="number" name="ball" placeholder="ball">
                 <input type="number" name="adaptscale" placeholder="adaptscale">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{addUkrMessage}}</h4>
         </div>
@@ -657,6 +808,10 @@
                 <input type="number" name="ball" placeholder="ball">
                 <input type="number" name="adaptscale" placeholder="adaptscale">
                 <input type="text" name="ptname" placeholder="ptname">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{updateUkrMessage}}</h4>
         </div>
@@ -666,6 +821,10 @@
             <form method="POST" action="{{ url_for('delete_ukr') }}">
                 <button type="submit">DELETE</button>
                 <input type="text" name="id" placeholder="student id">
+                <select name="db">
+                    <option value="postgresql">postgresql</option>
+                    <option value="mongo">mongo</option>
+                </select>
             </form>
             <h4>{{deleteUkrMessage}}</h4>
         </div>

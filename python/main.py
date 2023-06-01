@@ -10,6 +10,7 @@ from py7zr import unpack_7zarchive
 
 from database import insertDataIntoDB, compareQueryToCsv
 import app
+from  databaseMongo import writeDataToMongoDB
 
 url = 'https://zno.testportal.com.ua/yearstat/uploads/'
 filename = 'OpenDataZNO____.7z'
@@ -43,6 +44,7 @@ def downloadFiles():
 def writeDataToDb():
     for y in years:
         insertDataIntoDB(path + '/' + filenamecsv.replace('____', str(y)), y)
+        writeDataToMongoDB(path + '/' + filenamecsv.replace('____', str(y)), y)
 
 
 if __name__ == '__main__':

@@ -3,8 +3,8 @@ import csv
 from bson.son import SON
 import chardet
 
-client = MongoClient('mongodb://localhost:27017/', unicode_decode_error_handler='ignore')
-database = client['ZNOdataM']  # Замініть 'mydatabase' на назву вашої бази даних
+client = MongoClient('mongodb://mongodb:27017/', unicode_decode_error_handler='ignore')
+database = client['ZNOdataM']
 collection = database['znodata']
 
 def writeDataToMongoDB(filename, year):
@@ -17,7 +17,7 @@ def writeDataToMongoDB(filename, year):
         fieldnames = [key.lower() for key in reader.fieldnames]
         reader.fieldnames = fieldnames
         for row in reader:
-            if i > 1000: break
+            if i > 4000: break
             i += 1
             row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in
                            row.items()}
@@ -51,13 +51,12 @@ def getAvgSub(subject):
         r.append(doc["_id"]["regname"])
         r.append(doc["_id"]["year"])
         r.append(doc["averagebal"])
-        if r['averagebal'] is None: continue
+        if r[2] is None: continue
         resLst.append(r)
         # year = doc["_id"]["year"]
         # region = doc["_id"]["regname"]
         # average_phys_bal = doc["averagebal"]
         # print(f"Year: {year}, Region: {region}, Average phys_bal: {average_phys_bal}")
-    print(resLst)
     return resLst
 
 def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
@@ -154,9 +153,113 @@ def getSubByParams(sub, outid, teststatus, ptname):
 
     return list(collection.find(query))
 
-# file = 'resources/Odata2019File.csv'
-# writeDataToMongoDB(file, 2019)
-# file = 'resources/Odata2021File.csv'
-# writeDataToMongoDB(file, 2021)
-# makeRequest('umlball100')
-# result = collection.delete_many({})
+def addUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    uml_fields = {}
+
+    if teststatus != '': uml_fields["umlteststatus"] = teststatus
+    else: uml_fields["umlteststatus"] = None
+    if ball100 != '': uml_fields["umlball100"] = ball100
+    else: uml_fields["umlball100"] = None
+    if ball12 != '': uml_fields["umlball12"] = ball12
+    else: uml_fields["umlball12"] = None
+    if ball != '': uml_fields["umlball"] = ball
+    else: uml_fields["umlball"] = None
+    if ptname != '': uml_fields["umlptname"] = ptname
+    else: uml_fields["umlptname"] = None
+    if adaptscale != '': uml_fields["umladaptscale"] = adaptscale
+    else: uml_fields["umladaptscale"] = None
+    uml_fields['umltest'] = "Українська мова і література"
+
+    if uml_fields:
+        collection.update_one(
+            {"outid": student_id},
+            {"$set": uml_fields}
+        )
+
+def updateUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    update_fields = {}
+
+    if teststatus is not None and teststatus != '':
+        update_fields["umlteststatus"] = teststatus
+    if ball100 is not None and ball100 != '':
+        update_fields["umlball100"] = ball100
+    if ball12 is not None and ball12 != '':
+        update_fields["umlball12"] = ball12
+    if ball is not None and ball != '':
+        update_fields["umlball"] = ball
+    if adaptscale is not None and adaptscale != '':
+        update_fields["umladaptscale"] = adaptscale
+    if ptname is not None:
+        update_fields["umlptname"] = ptname
+    if update_fields:
+        collection.update_one(
+            {"outid": student_id},
+            {"$set": update_fields}
+        )
+
+def deleteTest(outid, sub):
+    query = {'outid': outid}
+    update = {'$unset':
+                {sub+'test': "null",
+                sub+'teststatus': "null",
+                sub+'ball100': "null",
+                sub+'ball12': "null",
+                sub+'ball': "null",
+                sub+'adaptscale': "null",
+                sub+'ptname': "null",
+                sub+"ptregname": "null",
+                sub+"ptareaname": "null",
+                sub+"pttername": "null",
+                 sub +'lang': "null",
+                 sub +'dpalevel': "null",
+                 sub+"subtest": "null"
+    }
+              }
+    collection.update_one(query, update)
+
+def addUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    ukr_fields = {}
+
+    if subtest != '': ukr_fields["ukrsubtest"] = subtest
+    else: ukr_fields["ukrsubtest"] = None
+    if teststatus != '': ukr_fields["ukrteststatus"] = teststatus
+    else: ukr_fields["ukrteststatus"] = None
+    if ball100 != '': ukr_fields["umlball100"] = ball100
+    else: ukr_fields["ukrball100"] = None
+    if ball12 != '': ukr_fields["umlball12"] = ball12
+    else: ukr_fields["ukrball12"] = None
+    if ball != '': ukr_fields["ukrball"] = ball
+    else: ukr_fields["ukrball"] = None
+    if ptname != '': ukr_fields["ukrptname"] = ptname
+    else: ukr_fields["ukrptname"] = None
+    if adaptscale != '': ukr_fields["ukradaptscale"] = adaptscale
+    else: ukr_fields["ukradaptscale"] = None
+    ukr_fields['ukrtest'] = "Українська мова"
+
+    if ukr_fields:
+        collection.update_one(
+            {"outid": student_id},
+            {"$set": ukr_fields}
+        )
+
+def updateUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
+    update_fields = {}
+    if subtest != '': update_fields["ukrsubtest"] = subtest
+    else: update_fields["ukrsubtest"] = None
+    if teststatus is not None and teststatus != '':
+        update_fields["umlteststatus"] = teststatus
+    if ball100 is not None and ball100 != '':
+        update_fields["umlball100"] = ball100
+    if ball12 is not None and ball12 != '':
+        update_fields["umlball12"] = ball12
+    if ball is not None and ball != '':
+        update_fields["umlball"] = ball
+    if adaptscale is not None and adaptscale != '':
+        update_fields["umladaptscale"] = adaptscale
+    if ptname is not None:
+        update_fields["umlptname"] = ptname
+    if update_fields:
+        collection.update_one(
+            {"outid": student_id},
+            {"$set": update_fields}
+        )

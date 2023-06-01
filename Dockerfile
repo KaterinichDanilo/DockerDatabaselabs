@@ -11,6 +11,7 @@ RUN pip install chardet
 RUN pip install flask
 RUN pip install sqlalchemy
 RUN pip install redis
+RUN pip install pymongo
 
 
 #EXPOSE 80

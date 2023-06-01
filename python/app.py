@@ -1,5 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
-import crud, databaseMongo
+from flask import Flask, render_template, request
+
+import crud
+import databaseMongo
 
 app = Flask(__name__)
 
@@ -30,6 +32,7 @@ def get_students_by_params():
             else: studList = []
         else:
             studList = databaseMongo.getStudentsByParams(id, year, regname)
+        return render_template('index.html', size=len(studList), studentsMongo=studList)
     elif db == 'postgresql':
         studList = crud.get_students_by_params(id, year, regname, eo_id)
 
@@ -476,14 +479,19 @@ def new_uml():
     ball = request.form['ball']
     adaptscale = request.form['adaptscale']
     ptname = request.form['ptname']
+    db = request.form['db']
 
-    try:
-        crud.create_uml(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
-        return render_template('index.html', addUmlMessage='Uml_test додано')
-    except Exception as e:
-        print("Помилка при додаванні uml:", str(e))
-        crud.sessionRollback()
-        return render_template('index.html', addUmlMessage='Сталася помилка')
+    if db == 'mongo':
+        databaseMongo.addUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', addUmlMessage='Операція додавання в MongoDB завершена')
+    elif db == 'postgresql':
+        try:
+            crud.create_uml(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            return render_template('index.html', addUmlMessage='Uml_test додано')
+        except Exception as e:
+            print("Помилка при додаванні uml:", str(e))
+            crud.sessionRollback()
+            return render_template('index.html', addUmlMessage='Сталася помилка')
 
 @app.route("/updateuml", methods=['POST'])
 def update_uml():
@@ -494,32 +502,45 @@ def update_uml():
     ball = request.form['ball']
     adaptscale = request.form['adaptscale']
     ptname = request.form['ptname']
+    db = request.form['db']
 
-    uml = crud.get_uml_by_student_id(student_id)
-    if uml:
-        try:
-            crud.update_uml(uml, teststatus, ball100, ball12, ball, adaptscale, ptname)
-            return render_template('index.html', updateUmlMessage='Uml оновлено')
-        except Exception as e:
-            print(e)
-            crud.sessionRollback()
-            return render_template('index.html', updateUmlMessage='Сталася помилка')
-    else: return render_template('index.html', updateUmlMessage='Uml з таким id не знайдено')
+    if db == 'mongo':
+        databaseMongo.updateUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', updateUmlMessage='Операція оновлення в MongoDB завершена')
+    elif db == 'postgresql':
+        uml = crud.get_uml_by_student_id(student_id)
+        if uml:
+            try:
+                crud.update_uml(uml, teststatus, ball100, ball12, ball, adaptscale, ptname)
+                return render_template('index.html', updateUmlMessage='Uml оновлено')
+            except Exception as e:
+                print(e)
+                crud.sessionRollback()
+                return render_template('index.html', updateUmlMessage='Сталася помилка')
+        else:
+            return render_template('index.html', updateUmlMessage='Uml з таким id не знайдено')
 
 @app.route("/deleteuml", methods=['POST'])
 def delete_uml():
     print(request)
     id = request.form['id']
     uml = crud.get_uml_by_student_id(id)
-    if uml:
-        try:
-            crud.delete_uml(uml)
-            return render_template('index.html', deleteUmlMessage='Uml видалено')
-        except Exception as e:
-            print(e)
-            crud.sessionRollback()
-            return render_template('index.html', deleteUmlMessage='Сталася помилка')
-    else: return render_template('index.html', deleteUmlMessage='Uml з таким id не знайдено')
+    db = request.form['db']
+
+    if db == 'mongo':
+        databaseMongo.deleteTest(id, 'uml')
+        return render_template('index.html', deleteUmlMessage='Операція видалення в MongoDB завершена')
+    elif db == 'postgresql':
+        if uml:
+            try:
+                crud.delete_uml(uml)
+                return render_template('index.html', deleteUmlMessage='Uml видалено')
+            except Exception as e:
+                print(e)
+                crud.sessionRollback()
+                return render_template('index.html', deleteUmlMessage='Сталася помилка')
+        else:
+            return render_template('index.html', deleteUmlMessage='Uml з таким id не знайдено')
 
 # UKR
 @app.route("/getukrbyparams", methods=['GET'])
@@ -528,9 +549,16 @@ def get_ukr_by_params():
     id = request.args['id']
     teststatus = request.args['teststatus']
     ptname = request.args['ptname']
-    ukrList = crud.get_ukr_by_params(id, teststatus, ptname)
-    size = len(ukrList)
-    return render_template('index.html', size=size, ukrList=ukrList)
+    db = request.args['db']
+
+    if db == 'mongo':
+        ukrList = databaseMongo.getSubByParams('ukr', id, teststatus, ptname)
+        return render_template('index.html', size=len(ukrList), ukrListMongo=ukrList)
+    elif db == 'postgresql':
+        ukrList = crud.get_ukr_by_params(id, teststatus, ptname)
+        size = len(ukrList)
+        return render_template('index.html', size=size, ukrList=ukrList)
+
 
 @app.route("/newukr", methods=['POST'])
 def new_ukr():
@@ -543,14 +571,20 @@ def new_ukr():
     ball = request.form['ball']
     adaptscale = request.form['adaptscale']
     ptname = request.form['ptname']
+    db = request.form['db']
 
-    try:
-        crud.create_ukr(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
-        return render_template('index.html', addUkrMessage='Ukr_test додано')
-    except Exception as e:
-        print("Помилка при додаванні ukr:", str(e))
-        crud.sessionRollback()
-        return render_template('index.html', addUkrMessage='Сталася помилка')
+    if db == 'mongo':
+        databaseMongo.addUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', addUkrMessage='Операція додавання в MongoDB завершена')
+    elif db == 'postgresql':
+        try:
+            crud.create_ukr(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+            return render_template('index.html', addUkrMessage='Ukr_test додано')
+        except Exception as e:
+            print("Помилка при додаванні ukr:", str(e))
+            crud.sessionRollback()
+            return render_template('index.html', addUkrMessage='Сталася помилка')
+
 
 @app.route("/updateukr", methods=['POST'])
 def update_ukr():
@@ -564,30 +598,48 @@ def update_ukr():
     ptname = request.form['ptname']
 
     ukr = crud.get_ukr_by_student_id(student_id)
-    if ukr:
-        try:
-            crud.update_ukr(ukr, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
-            return render_template('index.html', updateUkrMessage='Ukr оновлено')
-        except Exception as e:
-            print(e)
-            crud.sessionRollback()
-            return render_template('index.html', updateUkrMessage='Сталася помилка')
-    else: return render_template('index.html', updateUkrMessage='Uml з таким id не знайдено')
+    db = request.form['db']
+
+    if db == 'mongo':
+        databaseMongo.updateUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+        return render_template('index.html', updateUkrMessage='Операція оновлення в MongoDB завершена')
+    elif db == 'postgresql':
+        uml = crud.get_uml_by_student_id(student_id)
+        if uml:
+            if ukr:
+                try:
+                    crud.update_ukr(ukr, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname)
+                    return render_template('index.html', updateUkrMessage='Ukr оновлено')
+                except Exception as e:
+                    print(e)
+                    crud.sessionRollback()
+                    return render_template('index.html', updateUkrMessage='Сталася помилка')
+            else:
+                return render_template('index.html', updateUkrMessage='Uml з таким id не знайдено')
+
 
 @app.route("/deleteukr", methods=['POST'])
 def delete_ukr():
     print(request)
     id = request.form['id']
     ukr = crud.get_ukr_by_student_id(id)
-    if ukr:
-        try:
-            crud.delete_ukr(ukr)
-            return render_template('index.html', deleteUkrMessage='Ukr видалено')
-        except Exception as e:
-            print(e)
-            crud.sessionRollback()
-            return render_template('index.html', deleteUkrMessage='Сталася помилка')
-    else: return render_template('index.html', deleteUkrMessage='Ukr з таким id не знайдено')
+    db = request.form['db']
+
+    if db == 'mongo':
+        databaseMongo.deleteTest(id, 'uml')
+        return render_template('index.html', deleteUkrMessage='Операція видалення в MongoDB завершена')
+    elif db == 'postgresql':
+        if ukr:
+            try:
+                crud.delete_ukr(ukr)
+                return render_template('index.html', deleteUkrMessage='Ukr видалено')
+            except Exception as e:
+                print(e)
+                crud.sessionRollback()
+                return render_template('index.html', deleteUkrMessage='Сталася помилка')
+        else:
+            return render_template('index.html', deleteUkrMessage='Ukr з таким id не знайдено')
+
 
 
 def run():
