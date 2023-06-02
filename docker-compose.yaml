@@ -13,7 +13,7 @@ services:
       - FLYWAY_PASSWORD=1234
   database:
     image: postgres
-    restart: always
+#    restart: always
     ports:
       - 5432:5432
     environment:

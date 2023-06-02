@@ -27,11 +27,16 @@ def get_students_by_params():
     if db == 'mongo':
         if eo_id != '':
             eo = crud.get_eo_by_id(eo_id)
+            print(f'get_students_by_params: eo= {eo.to_string()}')
             if eo:
                 studList = databaseMongo.getStudentsByParams(id, year, regname, eo.eoname, eo.eoparent, eo.regname)
-            else: studList = []
+                print(f'if 1 size = {len(studList)}')
+            else:
+                studList = []
+                print(f'else 1 size = {len(studList)}')
         else:
             studList = databaseMongo.getStudentsByParams(id, year, regname)
+            print(f'else 2 size = {len(studList)}')
         return render_template('index.html', size=len(studList), studentsMongo=studList)
     elif db == 'postgresql':
         studList = crud.get_students_by_params(id, year, regname, eo_id)
@@ -53,12 +58,13 @@ def new_student():
     regname = request.form['regname']
     areaname = request.form['areaname']
     tername = request.form['tername']
-    db = request.args['db']
+    db = request.form['db']
 
     try:
         if db == 'mongo':
             if eo_id != '':
                 eo = crud.get_eo_by_id(eo_id)
+                print(f'new_student: eo= {eo.to_string()}')
                 if eo:
                     databaseMongo.addNewStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
                   regname, areaname, tername, regname, eo.eoname, eo.eotypename, eo.eoparent, eo.regname, eo.areaname, eo.tername)
@@ -88,7 +94,7 @@ def update_student():
     regname = request.form['regname']
     areaname = request.form['areaname']
     tername = request.form['tername']
-    db = request.args['db']
+    db = request.form['db']
 
     if db == 'mongo':
         if eo_id != '':
@@ -102,6 +108,7 @@ def update_student():
         else:
             databaseMongo.updateStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
                                         regname, areaname, tername, regname)
+        return render_template('index.html', updateStudentMessage='Оновлення студента в МongoDB завершено')
     elif db == 'postgresql':
         student = crud.get_student_by_id(id)
         if student:
@@ -121,10 +128,11 @@ def update_student():
 def delete_student():
     print(request)
     id = request.form['id']
-    db = request.args['db']
+    db = request.form['db']
 
     if db == 'mongo':
         databaseMongo.deleteStudent(id)
+        return render_template('index.html', deleteStudentMessage='Видалення студента з MongoDB завер')
     elif db == 'postgresql':
         student = crud.get_student_by_id(id)
         if student:
@@ -626,7 +634,7 @@ def delete_ukr():
     db = request.form['db']
 
     if db == 'mongo':
-        databaseMongo.deleteTest(id, 'uml')
+        databaseMongo.deleteTest(id, 'ukr')
         return render_template('index.html', deleteUkrMessage='Операція видалення в MongoDB завершена')
     elif db == 'postgresql':
         if ukr:

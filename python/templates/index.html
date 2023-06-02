@@ -474,27 +474,25 @@
                     <tbody>
                         {% for student in studentsMongo %}
                         <tr>
-                            <td>{{ student["outid"] }}</td>
-                            <td>{{ student["birth"] }}</td>
-                            <td>{{ student.["year"] }}</td>
-                            <td>{{ student.["sextypename"] }}</td>
-                            <td>{{ student['classprofilename'] }}</td>
-                            <td>{{ student['classlangname'] }}</td>
-                            <td>{{ student['regtypename'] }}</td>
-                            <td>{{ student[eoname] }}</td>
-                            <td>{{ student['eotypename] }}</td>
-                            <td>{{ student['regname'] }}</td>
-                            <td>{{ student['areaname'] }}</td>
-                            <td>{{ student['tername'] }}</td>
-                            <td>{{ student['regname'] }}</td>
-                            <td>{{ student['areaname'] }}</td>
-                            <td>{{ student['tername'] }}</td>
+                            <td>{{ student.get("outid") }}</td>
+                            <td>{{ student.get("birth") }}</td>
+                            <td>{{ student.get("year") }}</td>
+                            <td>{{ student.get("sextypename") }}</td>
+                            <td>{{ student.get('classprofilename') }}</td>
+                            <td>{{ student.get('classlangname') }}</td>
+                            <td>{{ student.get('regtypename') }}</td>
+                            <td>{{ student.get('eoname') }}</td>
+                            <td>{{ student.get('eotypename') }}</td>
+                            <td>{{ student.get('eoregname') }}</td>
+                            <td>{{ student.get('eoareaname') }}</td>
+                            <td>{{ student.get('eotername') }}</td>
+                            <td>{{ student.get('regname') }}</td>
+                            <td>{{ student.get('areaname') }}</td>
+                            <td>{{ student.get('tername') }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-
-
             </form>
         </div>
 
@@ -590,14 +588,14 @@
                     <tbody>
                         {% for uml in umlListMongo %}
                         <tr>
-                            <td>{{ uml['outid'] }}</td>
-                            <td>{{ uml['umltest'] }}</td>
-                            <td>{{ uml['umlteststatus'] }}</td>
-                            <td>{{ uml['umlball100'] }}</td>
-                            <td>{{ uml['umlball12'] }}</td>
-                            <td>{{ uml['umlball'] }}</td>
-                            <td>{{ uml['umladaptscale'] }}</td>
-                            <td>{{ uml['umlptname'] }}</td>
+                            <td>{{ uml.get('outid') }}</td>
+                            <td>{{ uml.get('umltest') }}</td>
+                            <td>{{ uml.get('umlteststatus') }}</td>
+                            <td>{{ uml.get('umlball100') }}</td>
+                            <td>{{ uml.get('umlball12') }}</td>
+                            <td>{{ uml.get('umlball') }}</td>
+                            <td>{{ uml.get('umladaptscale') }}</td>
+                            <td>{{ uml.get('umlptname') }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -753,14 +751,14 @@
                     <tbody>
                         {% for ukr in ukrListMongo %}
                         <tr>
-                            <td>{{ ukr['outid'] }}</td>
-                            <td>{{ ukr['ukrsubtest'] }}</td>
-                            <td>{{ ukr['ukrteststatus'] }}</td>
-                            <td>{{ ukr['ukrball100'] }}</td>
-                            <td>{{ ukr['ukrball12'] }}</td>
-                            <td>{{ ukr['ukrball'] }}</td>
-                            <td>{{ ukr['ukradaptscale'] }}</td>
-                            <td>{{ ukr['ukrptname'] }}</td>
+                            <td>{{ ukr.get('outid') }}</td>
+                            <td>{{ ukr.get('ukrsubtest') }}</td>
+                            <td>{{ ukr.get('ukrteststatus') }}</td>
+                            <td>{{ ukr.get('ukrball100') }}</td>
+                            <td>{{ ukr.get('ukrball12') }}</td>
+                            <td>{{ ukr.get('ukrball') }}</td>
+                            <td>{{ ukr.get('ukradaptscale') }}</td>
+                            <td>{{ ukr.get('ukrptname') }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

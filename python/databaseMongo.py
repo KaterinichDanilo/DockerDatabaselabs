@@ -4,10 +4,12 @@ from bson.son import SON
 import chardet
 
 client = MongoClient('mongodb://mongodb:27017/', unicode_decode_error_handler='ignore')
+# client = MongoClient('mongodb://localhost:27017/', unicode_decode_error_handler='ignore')
 database = client['ZNOdataM']
 collection = database['znodata']
 
 def writeDataToMongoDB(filename, year):
+    print(f"Writing data from {filename} to MongoDB")
     with open(filename, 'rb') as rawdata:
         result = chardet.detect(rawdata.read(10000))
     enc = result.get('encoding')
@@ -16,13 +18,25 @@ def writeDataToMongoDB(filename, year):
         reader = csv.DictReader(csvfile, delimiter=';')
         fieldnames = [key.lower() for key in reader.fieldnames]
         reader.fieldnames = fieldnames
+        print()
+        # for row in reader:
+        #     if i > 4000: break
+        #     i += 1
+        #     row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in
+        #                    row.items()}
+        #     row['year'] = year
+        #     collection.insert_one(row)
         for row in reader:
             if i > 4000: break
             i += 1
-            row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in
-                           row.items()}
+            outid = row['outid']
+            row['_id'] = outid
             row['year'] = year
+            row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in row.items()}
             collection.insert_one(row)
+
+        print("Writing to MongoDB finished")
+        print(f'Amount: {collection.count_documents({})}')
 
 def getAvgSub(subject):
     if subject == 'mathst':
@@ -62,6 +76,7 @@ def getAvgSub(subject):
 def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangname, regtypename,
                   regname, areaname, tername, eoname=None, eotypename=None, eoparent=None, eoregname=None, eoareaname=None, eotername=None):
     student = {
+        '_id': outid,
         'outid': outid,
         'birth': birth,
         'year': year,
@@ -79,6 +94,10 @@ def addNewStudent(outid, birth, year, sextypename, classprofilename, classlangna
         'areaname': areaname,
         'tername': tername,
     }
+
+    for key, value in student.items():
+        if value == '':
+            student[key] = None
 
     try:
         collection.insert_one(student)
@@ -139,7 +158,10 @@ def getStudentsByParams(outid, year, regname, eoname=None, eoparent=None, eoregn
     if regname is not None and regname != '':
         query["regname"] = regname
 
-    return list(collection.find(query))
+    resList = list(collection.find(query))
+    print(f'getStudentsByParams : {outid}, {year}, {regname}, {eoname}, {eoparent}, {eoregname}')
+    print(query)
+    return resList
 
 def getSubByParams(sub, outid, teststatus, ptname):
     query = {}
@@ -245,19 +267,18 @@ def addUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscal
 def updateUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
     update_fields = {}
     if subtest != '': update_fields["ukrsubtest"] = subtest
-    else: update_fields["ukrsubtest"] = None
     if teststatus is not None and teststatus != '':
-        update_fields["umlteststatus"] = teststatus
+        update_fields["ukrteststatus"] = teststatus
     if ball100 is not None and ball100 != '':
-        update_fields["umlball100"] = ball100
+        update_fields["ukrball100"] = ball100
     if ball12 is not None and ball12 != '':
-        update_fields["umlball12"] = ball12
+        update_fields["ukrball12"] = ball12
     if ball is not None and ball != '':
-        update_fields["umlball"] = ball
+        update_fields["ukrball"] = ball
     if adaptscale is not None and adaptscale != '':
-        update_fields["umladaptscale"] = adaptscale
+        update_fields["ukradaptscale"] = adaptscale
     if ptname is not None:
-        update_fields["umlptname"] = ptname
+        update_fields["ukrptname"] = ptname
     if update_fields:
         collection.update_one(
             {"outid": student_id},
