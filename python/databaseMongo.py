@@ -20,7 +20,7 @@ def writeDataToMongoDB(filename, year):
         reader.fieldnames = fieldnames
         for row in reader:
             try:
-                if i > 10: break
+                if i > 4000: break
                 i += 1
                 outid = row['outid']
                 existing_record = collection.find_one({'outid': outid})
