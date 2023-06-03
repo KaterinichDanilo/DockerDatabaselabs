@@ -5,7 +5,7 @@ import chardet
 
 client = MongoClient('mongodb://mongodb:27017/', unicode_decode_error_handler='ignore')
 # client = MongoClient('mongodb://localhost:27017/', unicode_decode_error_handler='ignore')
-database = client['ZNOdataM']
+database = client['ZNOdata']
 collection = database['znodata']
 
 def writeDataToMongoDB(filename, year):
@@ -18,22 +18,22 @@ def writeDataToMongoDB(filename, year):
         reader = csv.DictReader(csvfile, delimiter=';')
         fieldnames = [key.lower() for key in reader.fieldnames]
         reader.fieldnames = fieldnames
-        print()
-        # for row in reader:
-        #     if i > 4000: break
-        #     i += 1
-        #     row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in
-        #                    row.items()}
-        #     row['year'] = year
-        #     collection.insert_one(row)
         for row in reader:
-            if i > 4000: break
-            i += 1
-            outid = row['outid']
-            row['_id'] = outid
-            row['year'] = year
-            row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in row.items()}
-            collection.insert_one(row)
+            try:
+                if i > 10: break
+                i += 1
+                outid = row['outid']
+                existing_record = collection.find_one({'outid': outid})
+                if existing_record:
+                    print(f"Record with outid {outid} already exists. Skipping insertion.")
+                else:
+                    row['_id'] = outid
+                    row['year'] = year
+                    row = {key: value.replace(',', '.') if isinstance(value, str) else value for key, value in
+                           row.items()}
+                    collection.insert_one(row)
+            except Exception as e:
+                print(e)
 
         print("Writing to MongoDB finished")
         print(f'Amount: {collection.count_documents({})}')
@@ -148,7 +148,7 @@ def getStudentsByParams(outid, year, regname, eoname=None, eoparent=None, eoregn
     if outid is not None and outid != '':
         query["outid"] = outid
     if year is not None and year != '':
-        query["year"] = year
+        query["year"] = int(year)
     if eoname is not None and eoname != '':
         query["eoname"] = eoname
     if eoregname is not None and eoregname != '':
@@ -161,6 +161,7 @@ def getStudentsByParams(outid, year, regname, eoname=None, eoparent=None, eoregn
     resList = list(collection.find(query))
     print(f'getStudentsByParams : {outid}, {year}, {regname}, {eoname}, {eoparent}, {eoregname}')
     print(query)
+    print(f'return list size = {len(resList)}')
     return resList
 
 def getSubByParams(sub, outid, teststatus, ptname):
@@ -173,7 +174,12 @@ def getSubByParams(sub, outid, teststatus, ptname):
     if ptname is not None and ptname != '':
         query[sub+"ptname"] = ptname
 
-    return list(collection.find(query))
+    resList = list(collection.find(query))
+    print(f'getSubByParams : {sub}, {outid}, {teststatus}, {ptname}')
+    print(query)
+    print(f'return list size = {len(resList)}')
+
+    return resList
 
 def addUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname):
     uml_fields = {}
@@ -197,6 +203,7 @@ def addUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname
             {"outid": student_id},
             {"$set": uml_fields}
         )
+    print(f'addUmlTest query: {uml_fields}')
 
 def updateUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptname):
     update_fields = {}
@@ -211,13 +218,14 @@ def updateUmlTest(student_id, teststatus, ball100, ball12, ball, adaptscale, ptn
         update_fields["umlball"] = ball
     if adaptscale is not None and adaptscale != '':
         update_fields["umladaptscale"] = adaptscale
-    if ptname is not None:
+    if ptname is not None and ptname != '':
         update_fields["umlptname"] = ptname
     if update_fields:
         collection.update_one(
             {"outid": student_id},
             {"$set": update_fields}
         )
+    print(f'updateUmlTest query: {update_fields}')
 
 def deleteTest(outid, sub):
     query = {'outid': outid}
@@ -264,6 +272,8 @@ def addUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscal
             {"$set": ukr_fields}
         )
 
+    print(f'addUkrTest query: {ukr_fields}')
+
 def updateUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adaptscale, ptname):
     update_fields = {}
     if subtest != '': update_fields["ukrsubtest"] = subtest
@@ -277,10 +287,17 @@ def updateUkrTest(student_id, subtest, teststatus, ball100, ball12, ball, adapts
         update_fields["ukrball"] = ball
     if adaptscale is not None and adaptscale != '':
         update_fields["ukradaptscale"] = adaptscale
-    if ptname is not None:
+    if ptname is not None and ptname != '':
         update_fields["ukrptname"] = ptname
     if update_fields:
         collection.update_one(
             {"outid": student_id},
             {"$set": update_fields}
         )
+    print(f'updateUkrTest query: {update_fields}')
+
+# print(getStudentsByParams("8a2abef7-625a-4253-8c14-000fe8a856e5", '', ''))
+# print(getSubByParams('uml', "8a2abef7-625a-4253-8c14-000fe8a856e5", '', ''))
+# updateUmlTest(student_id="8a2abef7-625a-4253-8c14-000fe8a856e5",
+#               teststatus='TESSTSTATUS', ball100='999', ball12='', ball='', adaptscale='', ptname='')
+# print(getSubByParams('uml', "8a2abef7-625a-4253-8c14-000fe8a856e5", '', ''))

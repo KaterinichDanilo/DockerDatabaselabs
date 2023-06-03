@@ -23,23 +23,28 @@ def downloadFiles():
     shutil.register_unpack_format('7zip', ['.7z'], unpack_7zarchive)
     startTime = time.time()
 
-    for year in years:
-        if os.path.isfile(path + '/' + filenamecsv.replace('____', str(year))):
-            print(f'File {filenamecsv.replace("____", str(year))} already downloaded!')
-            continue
+    try:
+        for year in years:
+            if os.path.isfile(path + '/' + filenamecsv.replace('____', str(year))):
+                print(f'File {filenamecsv.replace("____", str(year))} already downloaded!')
+                continue
 
-        print(f'''Downloading {filename.replace('____', str(year))}...''')
-        r = requests.get(url + filename.replace('____', str(year)), stream=True)
-        print(f'File downloaded. Time {(time.time() - startTime):.2f} s')
+            print(f'''Downloading {filename.replace('____', str(year))}...''')
+            r = requests.get(url + filename.replace('____', str(year)), stream=True)
+            print(f'File downloaded. Time {(time.time() - startTime):.2f} s')
 
-        if r.status_code == 200:
-            print(f'''Unpacking {filename.replace('____', str(year))}...''')
-            with open(filename.replace('____', str(year)), 'wb') as out:
-                out.write(r.content)
-            shutil.unpack_archive(filename.replace('____', str(year)), path)
-            print(f'Unpacking finished. Time {(time.time() - startTime):.2f} s')
-        else:
-            print('Request failed: %d' % r.status_code)
+            if r.status_code == 200:
+                print(f'''Unpacking {filename.replace('____', str(year))}...''')
+                with open(filename.replace('____', str(year)), 'wb') as out:
+                    out.write(r.content)
+                shutil.unpack_archive(filename.replace('____', str(year)), path)
+                print(f'Unpacking finished. Time {(time.time() - startTime):.2f} s')
+            else:
+                print('Request failed: %d' % r.status_code)
+    except Exception as e:
+        raise e
+
+
 
 def writeDataToDb():
     for y in years:
@@ -49,6 +54,9 @@ def writeDataToDb():
 
 if __name__ == '__main__':
     logging.info('Python started!!!!')
-    downloadFiles()
-    writeDataToDb()
-    app.run()
+    try:
+        downloadFiles()
+        writeDataToDb()
+        app.run()
+    except Exception as e:
+        print(e)

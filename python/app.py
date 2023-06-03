@@ -29,7 +29,7 @@ def get_students_by_params():
             eo = crud.get_eo_by_id(eo_id)
             print(f'get_students_by_params: eo= {eo.to_string()}')
             if eo:
-                studList = databaseMongo.getStudentsByParams(id, year, regname, eo.eoname, eo.eoparent, eo.regname)
+                studList = databaseMongo.getStudentsByParams(id, year, regname, eo.eoname.strip(), eo.eoparent.strip(), eo.regname.strip())
                 print(f'if 1 size = {len(studList)}')
             else:
                 studList = []
@@ -67,7 +67,8 @@ def new_student():
                 print(f'new_student: eo= {eo.to_string()}')
                 if eo:
                     databaseMongo.addNewStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
-                  regname, areaname, tername, regname, eo.eoname, eo.eotypename, eo.eoparent, eo.regname, eo.areaname, eo.tername)
+                  regname, areaname, tername, eo.eoname.strip(), eo.eotypename.strip(), eo.eoparent.strip(), eo.regname.strip(),
+                                                eo.areaname.strip(), eo.tername.strip())
                 else:
                     return render_template('index.html', addStudentMessage='Навчального закладу з таким id не знайдено')
             else:
@@ -103,6 +104,7 @@ def update_student():
                 databaseMongo.updateStudent(id, birth, year, sextypename, classprofilename, classlangname, regtypename,
                                             regname, areaname, tername, regname, eo.eoname, eo.eotypename, eo.eoparent,
                                             eo.regname, eo.areaname, eo.tername)
+                return render_template('index.html', updateStudentMessage='Оновлення студента в МongoDB завершено')
             else:
                 return render_template('index.html', updateStudentMessage='Навчального закладу з таким id не знайдено')
         else:
